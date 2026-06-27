@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 
 from jose import JWTError, jwt
 
@@ -25,8 +26,9 @@ class AuthService:
         return token
 
     def _create_token(self, username: str) -> str:
-        expire = datetime.now(timezone.utc) + timedelta(hours=settings.token_expire_hours)
-        payload = {"sub": username, "exp": expire}
+        now = datetime.now(timezone.utc)
+        expire = now + timedelta(hours=settings.token_expire_hours)
+        payload = {"sub": username, "iat": now, "nbf": now, "jti": uuid4().hex, "exp": expire}
         return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
 
     async def verify_admin(self, token: str) -> None:
