@@ -18,6 +18,7 @@ from app.core.domain.exceptions import (
     TicketDoneCannotChangeStatusError,
     TicketDoneCannotDeleteError,
     TicketDoneCannotEditError,
+    TicketInvalidStatusTransitionError,
     TicketNotFoundError,
 )
 from app.services.ticket_service import TicketService
@@ -108,6 +109,8 @@ async def update_ticket_status(
     except TicketNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except TicketDoneCannotChangeStatusError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except TicketInvalidStatusTransitionError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 

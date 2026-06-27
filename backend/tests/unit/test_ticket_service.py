@@ -90,6 +90,7 @@ class TestTicketService:
 
     async def test_update_done_ticket_raises_error(self, service: TicketService):
         created = await service.create_ticket(TicketCreate(title="Test"))
+        await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.IN_PROGRESS))
         await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.DONE))
         with pytest.raises(TicketDoneCannotEditError):
             await service.update_ticket(created.id, TicketUpdate(title="New"))
@@ -104,6 +105,7 @@ class TestTicketService:
 
     async def test_cannot_change_status_from_done(self, service: TicketService):
         created = await service.create_ticket(TicketCreate(title="Test"))
+        await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.IN_PROGRESS))
         await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.DONE))
         with pytest.raises(TicketDoneCannotChangeStatusError):
             await service.update_status(
@@ -119,6 +121,7 @@ class TestTicketService:
 
     async def test_delete_done_ticket_raises_error(self, service: TicketService):
         created = await service.create_ticket(TicketCreate(title="Test"))
+        await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.IN_PROGRESS))
         await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.DONE))
         with pytest.raises(TicketDoneCannotDeleteError):
             await service.delete_ticket(created.id)

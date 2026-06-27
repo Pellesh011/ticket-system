@@ -32,6 +32,13 @@ class TicketDoneCannotChangeStatusError(TicketDoneError):
         super().__init__(action="change status of")
 
 
+class TicketInvalidStatusTransitionError(TicketDomainError):
+    def __init__(self, current: str, target: str) -> None:
+        self.current = current
+        self.target = target
+        super().__init__(f"Cannot transition from '{current}' to '{target}'")
+
+
 class AuthenticationError(TicketDomainError):
     def __init__(self) -> None:
         super().__init__("Invalid credentials")
