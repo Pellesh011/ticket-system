@@ -12,8 +12,8 @@ class ITicketRepository(BaseRepository[Ticket]):
         status: TicketStatus | None = None,
         priority: TicketPriority | None = None,
         search: str | None = None,
-        sort_by: str = "created_at",
-        sort_order: str = "desc",
+        sort_by: list[str] | None = None,
+        sort_order: list[str] | None = None,
         skip: int = 0,
         limit: int = 20,
     ) -> tuple[list[Ticket], int]:

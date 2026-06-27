@@ -50,17 +50,27 @@ async def create_ticket(
     return await service.create_ticket(data)
 
 
+VALID_SORT_FIELDS = {"created_at", "priority", "id"}
+VALID_SORT_ORDERS = {"asc", "desc"}
+
+
 @router.get("", response_model=PaginatedResponse)
 async def list_tickets(
     service: Annotated[TicketService, Depends(get_ticket_service)],
     status: TicketStatus | None = Query(None),
     priority: TicketPriority | None = Query(None),
     search: str | None = Query(None, min_length=1),
-    sort_by: str = Query("created_at", pattern=r"^(created_at|priority)$"),
-    sort_order: str = Query("desc", pattern=r"^(asc|desc)$"),
+    sort_by: list[str] = Query(["created_at"]),
+    sort_order: list[str] = Query(["desc"]),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
 ) -> PaginatedResponse:
+    for field in sort_by:
+        if field not in VALID_SORT_FIELDS:
+            raise HTTPException(status_code=422, detail=f"Invalid sort_by: {field}")
+    for order in sort_order:
+        if order not in VALID_SORT_ORDERS:
+            raise HTTPException(status_code=422, detail=f"Invalid sort_order: {order}")
     tickets, total = await service.get_tickets(
         status=status,
         priority=priority,
