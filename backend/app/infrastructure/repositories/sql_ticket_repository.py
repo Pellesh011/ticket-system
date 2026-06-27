@@ -53,7 +53,7 @@ class SQLTicketRepository(ITicketRepository):
     async def create(self, entity: Ticket) -> Ticket:
         model = _from_entity(entity)
         self._session.add(model)
-        await self._session.commit()
+        await self._session.flush()
         await self._session.refresh(model)
         return _to_entity(model)
 
@@ -64,7 +64,7 @@ class SQLTicketRepository(ITicketRepository):
         if model is None:
             return entity
         _apply_to_model(entity, model)
-        await self._session.commit()
+        await self._session.flush()
         await self._session.refresh(model)
         return _to_entity(model)
 
@@ -72,7 +72,7 @@ class SQLTicketRepository(ITicketRepository):
         model = await self._get_model_by_id(id)
         if model:
             await self._session.delete(model)
-            await self._session.commit()
+            await self._session.flush()
 
     async def _get_model_by_id(self, id: int) -> TicketModel | None:
         result = await self._session.execute(select(TicketModel).where(TicketModel.id == id))

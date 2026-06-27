@@ -41,7 +41,7 @@ class SQLUserRepository(IUserRepository):
     async def create(self, entity: User) -> User:
         model = _from_entity(entity)
         self._session.add(model)
-        await self._session.commit()
+        await self._session.flush()
         await self._session.refresh(model)
         return _to_entity(model)
 
@@ -54,7 +54,7 @@ class SQLUserRepository(IUserRepository):
             return entity
         model.username = entity.username  # type: ignore[assignment]
         model.hashed_password = entity.hashed_password  # type: ignore[assignment]
-        await self._session.commit()
+        await self._session.flush()
         await self._session.refresh(model)
         return _to_entity(model)
 
@@ -63,4 +63,4 @@ class SQLUserRepository(IUserRepository):
         model = result.scalar_one_or_none()
         if model:
             await self._session.delete(model)
-            await self._session.commit()
+            await self._session.flush()

@@ -29,6 +29,7 @@ async def _seed_test_admin(session: AsyncSession) -> None:
             hashed_password=password_service.hash("admin"),
         )
         await repo.create(admin_user)
+        await session.commit()
 
 
 @pytest_asyncio.fixture

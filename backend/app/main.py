@@ -39,6 +39,7 @@ async def _seed_admin() -> None:
                 hashed_password=password_service.hash(settings.admin_password),
             )
             await repo.create(admin_user)
+            await session.commit()
             logger.info("Admin user seeded: %s", settings.admin_username)
         else:
             logger.debug("Admin user already exists: %s", settings.admin_username)
