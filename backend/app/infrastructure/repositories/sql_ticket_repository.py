@@ -1,9 +1,43 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.domain.entities import Ticket
 from app.core.domain.enums import TicketPriority, TicketStatus
-from app.core.domain.models import Ticket
 from app.core.repositories.ticket_repository import ITicketRepository
+from app.infrastructure.database.models import TicketModel
+
+
+def _to_entity(model: TicketModel) -> Ticket:
+    return Ticket(
+        id=model.id,  # type: ignore[arg-type]
+        title=model.title,  # type: ignore[arg-type]
+        description=model.description,  # type: ignore[arg-type]
+        status=model.status,  # type: ignore[arg-type]
+        priority=model.priority,  # type: ignore[arg-type]
+        created_at=model.created_at,  # type: ignore[arg-type]
+        updated_at=model.updated_at,  # type: ignore[arg-type]
+    )
+
+
+def _from_entity(entity: Ticket) -> TicketModel:
+    model = TicketModel(
+        title=entity.title,
+        description=entity.description,
+        status=entity.status,
+        priority=entity.priority,
+        created_at=entity.created_at,
+        updated_at=entity.updated_at,
+    )
+    if entity.id is not None:
+        model.id = entity.id  # type: ignore[assignment]
+    return model
+
+
+def _apply_to_model(entity: Ticket, model: TicketModel) -> None:
+    model.title = entity.title  # type: ignore[assignment]
+    model.description = entity.description  # type: ignore[assignment]
+    model.status = str(entity.status)  # type: ignore[assignment]
+    model.priority = str(entity.priority)  # type: ignore[assignment]
 
 
 class SQLTicketRepository(ITicketRepository):
@@ -11,25 +45,37 @@ class SQLTicketRepository(ITicketRepository):
         self._session = session
 
     async def get_by_id(self, id: int) -> Ticket | None:
-        result = await self._session.execute(select(Ticket).where(Ticket.id == id))
-        return result.scalar_one_or_none()
+        result = await self._session.execute(select(TicketModel).where(TicketModel.id == id))
+        model = result.scalar_one_or_none()
+        return _to_entity(model) if model else None
 
     async def create(self, entity: Ticket) -> Ticket:
-        self._session.add(entity)
+        model = _from_entity(entity)
+        self._session.add(model)
         await self._session.commit()
-        await self._session.refresh(entity)
-        return entity
+        await self._session.refresh(model)
+        return _to_entity(model)
 
     async def update(self, entity: Ticket) -> Ticket:
+        if entity.id is None:
+            return entity
+        model = await self._get_model_by_id(entity.id)
+        if model is None:
+            return entity
+        _apply_to_model(entity, model)
         await self._session.commit()
-        await self._session.refresh(entity)
-        return entity
+        await self._session.refresh(model)
+        return _to_entity(model)
 
     async def delete(self, id: int) -> None:
-        ticket = await self.get_by_id(id)
-        if ticket:
-            await self._session.delete(ticket)
+        model = await self._get_model_by_id(id)
+        if model:
+            await self._session.delete(model)
             await self._session.commit()
+
+    async def _get_model_by_id(self, id: int) -> TicketModel | None:
+        result = await self._session.execute(select(TicketModel).where(TicketModel.id == id))
+        return result.scalar_one_or_none()
 
     async def get_filtered(
         self,
@@ -41,24 +87,24 @@ class SQLTicketRepository(ITicketRepository):
         skip: int = 0,
         limit: int = 20,
     ) -> tuple[list[Ticket], int]:
-        query = select(Ticket)
-        count_query = select(func.count(Ticket.id))
+        query = select(TicketModel)
+        count_query = select(func.count(TicketModel.id))
 
         if status:
-            query = query.where(Ticket.status == status)
-            count_query = count_query.where(Ticket.status == status)
+            query = query.where(TicketModel.status == status)
+            count_query = count_query.where(TicketModel.status == status)
 
         if priority:
-            query = query.where(Ticket.priority == priority)
-            count_query = count_query.where(Ticket.priority == priority)
+            query = query.where(TicketModel.priority == priority)
+            count_query = count_query.where(TicketModel.priority == priority)
 
         if search:
             pattern = f"%{search}%"
-            search_filter = Ticket.title.ilike(pattern) | Ticket.description.ilike(pattern)
+            search_filter = TicketModel.title.ilike(pattern) | TicketModel.description.ilike(pattern)
             query = query.where(search_filter)
             count_query = count_query.where(search_filter)
 
-        sort_column = getattr(Ticket, sort_by, Ticket.created_at)
+        sort_column = getattr(TicketModel, sort_by, TicketModel.created_at)
         if sort_order == "desc":
             query = query.order_by(sort_column.desc())
         else:
@@ -68,6 +114,6 @@ class SQLTicketRepository(ITicketRepository):
         total = total_result.scalar() or 0
 
         result = await self._session.execute(query.offset(skip).limit(limit))
-        tickets = list(result.scalars().all())
+        models = list(result.scalars().all())
 
-        return tickets, total
+        return [_to_entity(m) for m in models], total

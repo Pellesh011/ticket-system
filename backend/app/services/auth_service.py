@@ -4,8 +4,8 @@ from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 
 from app.config import settings
+from app.core.domain.entities import User
 from app.core.domain.exceptions import AuthenticationError, UnauthorizedError
-from app.core.domain.models import User
 from app.core.repositories.user_repository import IUserRepository
 from app.infrastructure.security.password import hash_password, verify_password
 

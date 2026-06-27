@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.infrastructure.database.base import Base
-from app.core.domain.models import Ticket, User  # noqa: F401
+from app.infrastructure.database.models import TicketModel, UserModel  # noqa: F401
 
 config = context.config
 if config.config_file_name is not None:

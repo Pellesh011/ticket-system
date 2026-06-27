@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
+from app.core.domain.entities import Ticket
 from app.core.domain.enums import TicketPriority, TicketStatus
-from app.core.domain.models import Ticket
 from app.core.repositories.base import BaseRepository
 
 

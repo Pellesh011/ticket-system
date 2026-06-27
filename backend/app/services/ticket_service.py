@@ -1,6 +1,7 @@
 import logging
 from math import ceil
 
+from app.core.domain.entities import Ticket
 from app.core.domain.enums import TicketPriority, TicketStatus
 from app.core.domain.exceptions import (
     TicketDoneCannotChangeStatusError,
@@ -8,7 +9,6 @@ from app.core.domain.exceptions import (
     TicketDoneCannotEditError,
     TicketNotFoundError,
 )
-from app.core.domain.models import Ticket
 from app.core.domain.schemas import (
     TicketCreate,
     TicketResponse,

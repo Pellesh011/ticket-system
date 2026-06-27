@@ -7,7 +7,7 @@ from app.core.domain.exceptions import (
     TicketDoneCannotEditError,
     TicketNotFoundError,
 )
-from app.core.domain.models import Ticket
+from app.core.domain.entities import Ticket
 from app.core.domain.schemas import TicketCreate, TicketStatusUpdate, TicketUpdate
 from app.services.ticket_service import TicketService
 
@@ -31,12 +31,12 @@ class FakeTicketRepository:
         entity.status = entity.status or TicketStatus.NEW
         entity.created_at = entity.created_at or datetime.now(timezone.utc)
         entity.updated_at = entity.updated_at or datetime.now(timezone.utc)
-        self._storage[entity.id] = entity
+        self._storage[entity.id] = entity  # type: ignore[index]
         return entity
 
     async def update(self, entity: Ticket) -> Ticket:
         entity.updated_at = datetime.now(timezone.utc)
-        self._storage[entity.id] = entity
+        self._storage[entity.id] = entity  # type: ignore[index]
         return entity
 
     async def delete(self, id: int) -> None:
