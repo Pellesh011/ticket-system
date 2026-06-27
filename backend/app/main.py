@@ -6,6 +6,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
 
 from app.api.routes import auth, tickets
 from app.config import settings
@@ -73,12 +75,17 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Application shutdown")
 
 
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(
     title="Ticket Management System",
     version="1.0.0",
     lifespan=lifespan,
     redirect_slashes=False,
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(429, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
