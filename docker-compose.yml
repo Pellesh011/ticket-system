@@ -10,8 +10,6 @@ services:
       - tickets_logs:/app/logs
     env_file: ./backend/.env
     environment:
-      - DATABASE_URL=sqlite+aiosqlite:///./data/tickets.db
-      - DEBUG=false
       - ADMIN_USERNAME=admin
       - CORS_ORIGINS=["http://localhost:5173","http://127.0.0.1:5173"]
     restart: unless-stopped

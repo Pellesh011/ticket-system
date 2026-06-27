@@ -192,7 +192,7 @@ cd frontend && npm run lint && npm run build
 GitHub Actions автоматически запускается при push/PR на `master`/`main`:
 
 - **backend-test** — Python 3.12, `pytest -v` (33 теста)
-- **frontend-build** — Node 20, `npm run lint` + `npm run build`
+- **frontend-build** — Node 22, `npm run lint` + `npm run build`
 
 Джобы выполняются параллельно. Результат: https://github.com/Pellesh011/ticket-system/actions
 
