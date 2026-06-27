@@ -52,6 +52,7 @@ class TestTicketAPI:
         await async_client.post("/api/tickets", json={"title": "Active"})
         resp = await async_client.post("/api/tickets", json={"title": "Done ticket"})
         ticket_id = resp.json()["id"]
+        await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "in_progress"})
         await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "done"})
         response = await async_client.get("/api/tickets", params={"status": "done"})
         assert response.status_code == 200
@@ -112,6 +113,7 @@ class TestTicketAPI:
     async def test_update_done_ticket_returns_400(self, async_client: AsyncClient):
         resp = await async_client.post("/api/tickets", json={"title": "Test"})
         ticket_id = resp.json()["id"]
+        await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "in_progress"})
         await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "done"})
         response = await async_client.patch(f"/api/tickets/{ticket_id}", json={"title": "New"})
         assert response.status_code == 400
@@ -120,6 +122,7 @@ class TestTicketAPI:
     async def test_update_status_done(self, async_client: AsyncClient):
         resp = await async_client.post("/api/tickets", json={"title": "Finish me"})
         ticket_id = resp.json()["id"]
+        await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "in_progress"})
         response = await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "done"})
         assert response.status_code == 200
         assert response.json()["status"] == "done"
@@ -127,6 +130,7 @@ class TestTicketAPI:
     async def test_cannot_change_status_from_done(self, async_client: AsyncClient):
         resp = await async_client.post("/api/tickets", json={"title": "Done ticket"})
         ticket_id = resp.json()["id"]
+        await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "in_progress"})
         await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "done"})
         response = await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "new"})
         assert response.status_code == 400
@@ -147,6 +151,7 @@ class TestTicketAPI:
     async def test_delete_done_ticket_returns_400(self, auth_client: AsyncClient):
         resp = await auth_client.post("/api/tickets", json={"title": "Done"})
         ticket_id = resp.json()["id"]
+        await auth_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "in_progress"})
         await auth_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "done"})
         response = await auth_client.delete(f"/api/tickets/{ticket_id}")
         assert response.status_code == 400

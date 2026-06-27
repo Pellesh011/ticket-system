@@ -7,6 +7,7 @@ from app.core.domain.exceptions import (
     TicketDoneCannotChangeStatusError,
     TicketDoneCannotDeleteError,
     TicketDoneCannotEditError,
+    TicketInvalidStatusTransitionError,
     TicketNotFoundError,
 )
 from app.core.domain.schemas import (
@@ -89,6 +90,13 @@ class TicketService:
             raise TicketNotFoundError(ticket_id)
         if ticket.status == TicketStatus.DONE:
             raise TicketDoneCannotChangeStatusError()
+        valid_transitions = {
+            TicketStatus.NEW: {TicketStatus.IN_PROGRESS},
+            TicketStatus.IN_PROGRESS: {TicketStatus.DONE, TicketStatus.NEW},
+        }
+        allowed = valid_transitions.get(ticket.status, set()) | {ticket.status}
+        if data.status not in allowed:
+            raise TicketInvalidStatusTransitionError(ticket.status, data.status)
         logger.info(
             "Ticket status change: id=%d, %s -> %s",
             ticket_id,
