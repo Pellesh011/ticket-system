@@ -1,4 +1,4 @@
-from app.core.domain.schemas import (
+from app.core.domain.schemas import (  # noqa: F401
     TicketCreate,
     TicketResponse,
     TicketStatusUpdate,

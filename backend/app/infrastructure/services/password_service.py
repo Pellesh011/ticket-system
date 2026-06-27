@@ -1,4 +1,3 @@
-from app.core.services.password_service import IPasswordService
 from app.infrastructure.security.password import hash_password, verify_password
 
 
