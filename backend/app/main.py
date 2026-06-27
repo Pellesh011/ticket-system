@@ -1,4 +1,5 @@
 import logging
+import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -49,12 +50,16 @@ async def _seed_admin() -> None:
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     setup_logging()
 
-    if not settings.secret_key:
-        logger.warning("SECRET_KEY is empty! JWT tokens are insecure.")
-        logger.warning("Set SECRET_KEY environment variable to a secure random value.")
-    if not settings.admin_password:
-        logger.warning("ADMIN_PASSWORD is empty! Admin login is blocked.")
-        logger.warning("Set ADMIN_PASSWORD environment variable.")
+    if not settings.secret_key or settings.secret_key in ("CHANGE_ME", "super-secret-key-change-in-production", "change-this-in-production"):
+        logger.error("SECRET_KEY is empty or set to a trivial placeholder!")
+        logger.error("Set SECRET_KEY environment variable to a secure random value (e.g. 'python -c \"import secrets; print(secrets.token_urlsafe(32))\"').")
+        logger.error("Application will not start until a secure SECRET_KEY is configured.")
+        sys.exit(1)
+    if not settings.admin_password or settings.admin_password in ("CHANGE_ME", "change-this-in-production"):
+        logger.error("ADMIN_PASSWORD is empty or set to a trivial placeholder!")
+        logger.error("Set ADMIN_PASSWORD environment variable to a strong password.")
+        logger.error("Application will not start until a secure ADMIN_PASSWORD is configured.")
+        sys.exit(1)
 
     logger.info("Starting ticket-system application")
     async with engine.begin() as conn:
