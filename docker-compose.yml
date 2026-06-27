@@ -7,7 +7,6 @@ services:
       - "8000:8000"
     volumes:
       - tickets_data:/app/data
-      - tickets_logs:/app/logs
     env_file: ./backend/.env
     environment:
       - ADMIN_USERNAME=admin
@@ -33,4 +32,3 @@ services:
 
 volumes:
   tickets_data:
-  tickets_logs:
