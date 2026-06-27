@@ -4,5 +4,3 @@ from app.core.domain.schemas import (
     TicketStatusUpdate,
     TicketUpdate,
 )
-
-__all__ = ["TicketCreate", "TicketResponse", "TicketStatusUpdate", "TicketUpdate"]
