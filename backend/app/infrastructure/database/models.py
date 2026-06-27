@@ -13,7 +13,7 @@ class TicketModel(Base):
     title = Column(String(120), nullable=False)
     description = Column(Text(1000), nullable=True)
     status = Column(String(20), default=TicketStatus.NEW, nullable=False)
-    priority = Column(String(10), default=TicketPriority.NORMAL, nullable=False)
+    priority = Column(Integer, default=TicketPriority.NORMAL, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(
         DateTime,

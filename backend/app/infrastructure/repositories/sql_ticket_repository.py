@@ -1,4 +1,4 @@
-from sqlalchemy import case, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.domain.entities import Ticket
@@ -37,7 +37,7 @@ def _apply_to_model(entity: Ticket, model: TicketModel) -> None:
     model.title = entity.title  # type: ignore[assignment]
     model.description = entity.description  # type: ignore[assignment]
     model.status = str(entity.status)  # type: ignore[assignment]
-    model.priority = str(entity.priority)  # type: ignore[assignment]
+    model.priority = entity.priority  # type: ignore[assignment]
     model.updated_at = entity.updated_at  # type: ignore[assignment]
 
 
@@ -111,15 +111,7 @@ class SQLTicketRepository(ITicketRepository):
             query = query.where(search_filter)
             count_query = count_query.where(search_filter)
 
-        if sort_by == "priority":
-            sort_column = case(
-                (TicketModel.priority == "high", 0),
-                (TicketModel.priority == "normal", 1),
-                (TicketModel.priority == "low", 2),
-                else_=3,
-            )
-        else:
-            sort_column = getattr(TicketModel, sort_by, TicketModel.created_at)
+        sort_column = getattr(TicketModel, sort_by, TicketModel.created_at)
         query = query.order_by(sort_column.desc() if sort_order == "desc" else sort_column.asc())
 
         total_result = await self._session.execute(count_query)
