@@ -79,11 +79,14 @@ export function useTickets() {
 
   const updateStatus = useCallback(
     async (id: number, data: TicketStatusUpdate) => {
+      setLoading(true)
       try {
         await api.tickets.updateStatus(id, data)
         await fetchTickets(filters)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to update status")
+      } finally {
+        setLoading(false)
       }
     },
     [filters, fetchTickets],
@@ -91,11 +94,14 @@ export function useTickets() {
 
   const updateTicket = useCallback(
     async (id: number, data: TicketUpdate) => {
+      setLoading(true)
       try {
         await api.tickets.update(id, data)
         await fetchTickets(filters)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to update ticket")
+      } finally {
+        setLoading(false)
       }
     },
     [filters, fetchTickets],
@@ -103,11 +109,14 @@ export function useTickets() {
 
   const deleteTicket = useCallback(
     async (id: number) => {
+      setLoading(true)
       try {
         await api.tickets.delete(id)
         await fetchTickets(filters)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to delete ticket")
+      } finally {
+        setLoading(false)
       }
     },
     [filters, fetchTickets],
