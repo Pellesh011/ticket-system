@@ -27,7 +27,8 @@
 app/
 ├── core/                   # Ядро домена (чистая бизнес-логика)
 │   ├── domain/
-│   │   ├── models.py       # ORM-модели (Ticket, User)
+│   │   ├── entities.py     # Доменные сущности (dataclass, без SQLAlchemy)
+│   │   ├── models.py       # Re-export из entities (обратная совместимость)
 │   │   ├── enums.py        # TicketStatus, TicketPriority
 │   │   ├── exceptions.py   # Иерархия доменных исключений
 │   │   └── schemas.py      # Pydantic DTO (request/response)
@@ -39,8 +40,12 @@ app/
 │       ├── auth_service.py
 │       └── ticket_service.py
 ├── infrastructure/         # Конкретные реализации
-│   ├── database/           # AsyncEngine, сессия, DeclarativeBase
-│   ├── repositories/       # SQLTicketRepository, SQLUserRepository
+│   ├── database/
+│   │   ├── base.py         # DeclarativeBase
+│   │   ├── models.py       # SQLAlchemy ORM-модели (TicketModel, UserModel)
+│   │   ├── engine.py       # AsyncEngine + фабрика сессий
+│   │   └── session.py      # Генератор сессий
+│   ├── repositories/       # SQL-реализации + конвертация model ↔ entity
 │   └── security/           # Хеширование паролей (PBKDF2)
 ├── services/               # Бизнес-логика (реализации сервисов)
 │   ├── auth_service.py     # JWT, логин, верификация
@@ -48,8 +53,10 @@ app/
 └── api/                    # HTTP-слой
     ├── routes/             # Эндпоинты (router)
     ├── schemas/            # Переэкспорт DTO для API
-    └── dependencies.py     # DI-провайдеры (FаstAPI Depends)
+    └── dependencies.py     # DI-провайдеры (FastAPI Depends)
 ```
+
+**Принцип зависимостей:** `api` → `services` → `core` ← `infrastructure`. Domain-слой (`core`) не зависит ни от каких внешних библиотек.
 
 ## Архитектура фронтенда
 
@@ -79,6 +86,7 @@ src/
 - `BaseRepository[T]` — generic-абстракция с методами `get_by_id`, `create`, `update`, `delete`
 - `ITicketRepository` — расширяет базовый, добавляя `get_filtered(...)`
 - `IUserRepository` — расширяет базовый, добавляя `get_by_username(...)`
+- В SQL-реализациях реализован **Mapping Layer** — функции `_to_entity()` / `_from_entity()` конвертируют SQLAlchemy модели в доменные сущности и обратно
 
 ### 2. Dependency Injection / Inversion of Control (Внедрение зависимостей / Инверсия управления)
 
@@ -98,7 +106,7 @@ DB Session → Repository → Service → Route Handler
 
 Pydantic-модели разделяют контракт API и доменную модель:
 
-- `TicketResponse` — ответ с `model_validate()` для конвертации из ORM-модели
+- `TicketResponse` — ответ с `model_validate()` для конвертации из доменной сущности
 - `TicketCreate`, `TicketUpdate`, `TicketStatusUpdate` — запросы с валидацией
 - `PaginatedResponse[T]` — типизированный пагинированный ответ
 
@@ -172,9 +180,18 @@ docker-compose up --build
 ## Тесты
 
 ```bash
-# Backend
-cd backend && pytest
+# Backend (33 тестов: unit + integration)
+cd backend && pytest -v
 
-# Frontend
-cd frontend && npm run lint
+# Frontend (lint + build)
+cd frontend && npm run lint && npm run build
 ```
+
+## CI/CD
+
+GitHub Actions автоматически запускается при push/PR на `master`/`main`:
+
+- **backend-test** — Python 3.12, `pytest -v` (33 теста)
+- **frontend-build** — Node 20, `npm run lint` + `npm run build`
+
+Джобы выполняются параллельно. Результат: https://github.com/Pellesh011/ticket-system/actions
