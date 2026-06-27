@@ -23,8 +23,7 @@ export function useTickets() {
     status: "",
     priority: "",
     search: "",
-    sort_by: "created_at",
-    sort_order: "desc",
+    sort: [{ field: "created_at", order: "desc" }],
     page: 1,
     page_size: 20,
   })
