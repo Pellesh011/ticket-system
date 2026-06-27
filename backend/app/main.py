@@ -17,7 +17,6 @@ from app.core.domain.exceptions import (
     UnauthorizedError,
 )
 from app.core.logging import setup_logging
-from app.infrastructure.database.base import Base
 from app.infrastructure.database.engine import engine
 
 logger = logging.getLogger(__name__)
@@ -64,9 +63,6 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
         sys.exit(1)
 
     logger.info("Starting ticket-system application")
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database tables created")
 
     await _seed_admin()
 
