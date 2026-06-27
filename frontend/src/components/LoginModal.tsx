@@ -18,7 +18,7 @@ export function LoginModal({ onLogin }: LoginModalProps) {
     setError(null)
     try {
       const res = await api.auth.login({ username, password })
-      localStorage.setItem("admin_token", res.access_token)
+      sessionStorage.setItem("admin_token", res.access_token)
       setOpen(false)
       onLogin()
     } catch (err) {
@@ -29,11 +29,11 @@ export function LoginModal({ onLogin }: LoginModalProps) {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem("admin_token")
+    sessionStorage.removeItem("admin_token")
     onLogin()
   }
 
-  const token = localStorage.getItem("admin_token")
+  const token = sessionStorage.getItem("admin_token")
 
   return (
     <>

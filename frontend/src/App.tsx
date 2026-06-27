@@ -23,11 +23,11 @@ function App() {
     setPage,
   } = useTickets()
 
-  const [isAdmin, setIsAdmin] = useState(!!localStorage.getItem("admin_token"))
+  const [isAdmin, setIsAdmin] = useState(!!sessionStorage.getItem("admin_token"))
   const [dismissedError, setDismissedError] = useState<string | null>(null)
 
   const handleLogin = useCallback(() => {
-    setIsAdmin(!!localStorage.getItem("admin_token"))
+    setIsAdmin(!!sessionStorage.getItem("admin_token"))
   }, [])
 
   const handleStatusChange = useCallback(

@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone
 from math import ceil
 
 from app.core.domain.entities import Ticket
@@ -72,8 +73,13 @@ class TicketService:
         update_data = data.model_dump(exclude_unset=True)
         if not update_data:
             return self._to_response(ticket)
-        for field, value in update_data.items():
-            setattr(ticket, field, value)
+        if "title" in update_data:
+            ticket.title = update_data["title"]
+        if "description" in update_data:
+            ticket.description = update_data["description"]
+        if "priority" in update_data:
+            ticket.priority = update_data["priority"]
+        ticket.updated_at = datetime.now(timezone.utc)
         updated = await self._repo.update(ticket)
         logger.info("Ticket updated: id=%d, fields=%s", ticket_id, list(update_data.keys()))
         return self._to_response(updated)
@@ -91,6 +97,7 @@ class TicketService:
             data.status,
         )
         ticket.status = data.status
+        ticket.updated_at = datetime.now(timezone.utc)
         updated = await self._repo.update(ticket)
         return self._to_response(updated)
 

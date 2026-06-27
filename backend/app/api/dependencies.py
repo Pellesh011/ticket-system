@@ -2,8 +2,10 @@ from collections.abc import AsyncGenerator
 from typing import Annotated
 
 from fastapi import Depends, Header, HTTPException
+from jose import JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.domain.exceptions import UnauthorizedError
 from app.infrastructure.database.session import get_session
 from app.infrastructure.repositories.sql_ticket_repository import SQLTicketRepository
 from app.infrastructure.repositories.sql_user_repository import SQLUserRepository
@@ -34,5 +36,5 @@ async def require_admin(
         raise HTTPException(status_code=403, detail="Invalid authorization header")
     try:
         await auth_service.verify_admin(token)
-    except Exception:
+    except (UnauthorizedError, JWTError):
         raise HTTPException(status_code=403, detail="Admin access required")

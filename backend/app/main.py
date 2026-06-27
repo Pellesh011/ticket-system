@@ -20,6 +20,30 @@ from app.infrastructure.database.engine import engine
 logger = logging.getLogger(__name__)
 
 
+async def _seed_admin() -> None:
+    if not settings.admin_password:
+        logger.warning("ADMIN_PASSWORD is empty — skipping admin seeding")
+        return
+    from app.core.domain.entities import User
+    from app.infrastructure.database.session import async_session_factory
+    from app.infrastructure.repositories.sql_user_repository import SQLUserRepository
+    from app.infrastructure.services.password_service import PasswordService
+
+    async with async_session_factory() as session:
+        repo = SQLUserRepository(session)
+        password_service = PasswordService()
+        admin = await repo.get_by_username(settings.admin_username)
+        if not admin:
+            admin_user = User(
+                username=settings.admin_username,
+                hashed_password=password_service.hash(settings.admin_password),
+            )
+            await repo.create(admin_user)
+            logger.info("Admin user seeded: %s", settings.admin_username)
+        else:
+            logger.debug("Admin user already exists: %s", settings.admin_username)
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     setup_logging()
@@ -35,6 +59,9 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Database tables created")
+
+    await _seed_admin()
+
     yield
     await engine.dispose()
     logger.info("Application shutdown")

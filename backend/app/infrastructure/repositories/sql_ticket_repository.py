@@ -38,6 +38,7 @@ def _apply_to_model(entity: Ticket, model: TicketModel) -> None:
     model.description = entity.description  # type: ignore[assignment]
     model.status = str(entity.status)  # type: ignore[assignment]
     model.priority = str(entity.priority)  # type: ignore[assignment]
+    model.updated_at = entity.updated_at  # type: ignore[assignment]
 
 
 class SQLTicketRepository(ITicketRepository):
