@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react"
 import type { TicketFilters as Filters, TicketPriority, TicketStatus } from "../api/types"
 
 interface TicketFiltersProps {
@@ -6,13 +7,29 @@ interface TicketFiltersProps {
 }
 
 export function TicketFilters({ filters, onFilterChange }: TicketFiltersProps) {
+  const [search, setSearch] = useState(filters.search)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  useEffect(() => {
+    return () => clearTimeout(debounceRef.current)
+  }, [])
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearch(value)
+    clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      onFilterChange({ search: value })
+    }, 300)
+  }
+
   return (
     <div className="ticket-filters">
       <input
         type="text"
         placeholder="Search title or description..."
-        value={filters.search}
-        onChange={(e) => onFilterChange({ search: e.target.value })}
+        value={search}
+        onChange={handleSearchChange}
         className="search-input"
       />
       <select
