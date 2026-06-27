@@ -1,45 +1,9 @@
 import { useEffect, useRef, useState } from "react"
-import type { SortLevel, TicketFilters as Filters, TicketPriority, TicketStatus } from "../api/types"
+import type { TicketFilters as Filters, TicketPriority, TicketStatus } from "../api/types"
 
 interface TicketFiltersProps {
   filters: Filters
   onFilterChange: (partial: Partial<Filters>) => void
-}
-
-function SortRow({
-  level,
-  index,
-  onChange,
-  onRemove,
-}: {
-  level: SortLevel
-  index: number
-  onChange: (index: number, level: SortLevel) => void
-  onRemove: (index: number) => void
-}) {
-  return (
-    <div className="sort-row">
-      <select
-        value={level.field}
-        onChange={(e) => onChange(index, { ...level, field: e.target.value as SortLevel["field"] })}
-      >
-        <option value="created_at">Created At</option>
-        <option value="priority">Priority</option>
-      </select>
-      <select
-        value={level.order}
-        onChange={(e) => onChange(index, { ...level, order: e.target.value as SortLevel["order"] })}
-      >
-        <option value="desc">Desc</option>
-        <option value="asc">Asc</option>
-      </select>
-      {index > 0 && (
-        <button type="button" className="remove-sort" onClick={() => onRemove(index)}>
-          ✕
-        </button>
-      )}
-    </div>
-  )
 }
 
 export function TicketFilters({ filters, onFilterChange }: TicketFiltersProps) {
@@ -57,23 +21,6 @@ export function TicketFilters({ filters, onFilterChange }: TicketFiltersProps) {
     debounceRef.current = setTimeout(() => {
       onFilterChange({ search: value })
     }, 300)
-  }
-
-  const handleSortChange = (index: number, level: SortLevel) => {
-    const sort = [...filters.sort]
-    sort[index] = level
-    onFilterChange({ sort })
-  }
-
-  const handleSortRemove = (index: number) => {
-    const sort = filters.sort.filter((_, i) => i !== index)
-    onFilterChange({ sort })
-  }
-
-  const handleAddSort = () => {
-    const usedFields = new Set(filters.sort.map((s) => s.field))
-    const nextField = usedFields.has("created_at") ? "priority" : "created_at"
-    onFilterChange({ sort: [...filters.sort, { field: nextField, order: "asc" }] })
   }
 
   return (
@@ -103,22 +50,18 @@ export function TicketFilters({ filters, onFilterChange }: TicketFiltersProps) {
         <option value="normal">Normal</option>
         <option value="high">High</option>
       </select>
-      <div className="sort-group">
-        {filters.sort.map((level, i) => (
-          <SortRow
-            key={i}
-            level={level}
-            index={i}
-            onChange={handleSortChange}
-            onRemove={handleSortRemove}
-          />
-        ))}
-        {filters.sort.length < 2 && (
-          <button type="button" className="add-sort" onClick={handleAddSort}>
-            + Add sort level
-          </button>
-        )}
-      </div>
+      <select
+        value={`${filters.sort_by}-${filters.sort_order}`}
+        onChange={(e) => {
+          const [sort_by, sort_order] = e.target.value.split("-") as [Filters["sort_by"], Filters["sort_order"]]
+          onFilterChange({ sort_by, sort_order })
+        }}
+      >
+        <option value="created_at-desc">Newest First</option>
+        <option value="created_at-asc">Oldest First</option>
+        <option value="priority-desc">Priority High</option>
+        <option value="priority-asc">Priority Low</option>
+      </select>
     </div>
   )
 }

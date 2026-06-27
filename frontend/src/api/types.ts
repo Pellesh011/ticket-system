@@ -46,16 +46,12 @@ export interface TokenResponse {
   token_type: string
 }
 
-export interface SortLevel {
-  field: "created_at" | "priority"
-  order: "asc" | "desc"
-}
-
 export interface TicketFilters {
   status: TicketStatus | ""
   priority: TicketPriority | ""
   search: string
-  sort: SortLevel[]
+  sort_by: "created_at" | "priority"
+  sort_order: "asc" | "desc"
   page: number
   page_size: number
 }
