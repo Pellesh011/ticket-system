@@ -1,6 +1,3 @@
-from dataclasses import dataclass
-
-
 class TicketDomainError(Exception):
     pass
 
@@ -11,9 +8,10 @@ class TicketNotFoundError(TicketDomainError):
         super().__init__(f"Ticket with id {ticket_id} not found")
 
 
-@dataclass
 class TicketDoneError(TicketDomainError):
-    action: str
+    def __init__(self, action: str) -> None:
+        self.action = action
+        super().__init__(f"Cannot {action} a ticket in 'done' status")
 
     def __str__(self) -> str:
         return f"Cannot {self.action} a ticket in 'done' status"
