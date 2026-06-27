@@ -1,4 +1,4 @@
-from enum import StrEnum
+from enum import IntEnum, StrEnum
 
 
 class TicketStatus(StrEnum):
@@ -7,7 +7,16 @@ class TicketStatus(StrEnum):
     DONE = "done"
 
 
-class TicketPriority(StrEnum):
-    LOW = "low"
-    NORMAL = "normal"
-    HIGH = "high"
+class TicketPriority(IntEnum):
+    LOW = 0
+    NORMAL = 1
+    HIGH = 2
+
+    @classmethod
+    def _missing_(cls, value: object) -> "TicketPriority":
+        if isinstance(value, str):
+            try:
+                return cls[value.upper()]
+            except KeyError:
+                pass
+        return super()._missing_(value)
