@@ -3,10 +3,14 @@ import sys
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
+from app.config import settings
+
 
 def setup_logging() -> None:
     log_dir = Path("logs")
     log_dir.mkdir(exist_ok=True)
+
+    level = getattr(logging, settings.log_level.upper(), logging.DEBUG)
 
     formatter = logging.Formatter(
         fmt="%(asctime)s | %(levelname)-8s | %(name)s:%(funcName)s:%(lineno)d | %(message)s",
@@ -15,7 +19,7 @@ def setup_logging() -> None:
 
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
-    console_handler.setLevel(logging.DEBUG)
+    console_handler.setLevel(level)
 
     file_handler = RotatingFileHandler(
         log_dir / "app.log",
@@ -23,10 +27,10 @@ def setup_logging() -> None:
         backupCount=5,
     )
     file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.DEBUG)
+    file_handler.setLevel(level)
 
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)
+    root_logger.setLevel(level)
     root_logger.addHandler(console_handler)
     root_logger.addHandler(file_handler)
 

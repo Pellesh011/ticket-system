@@ -33,23 +33,3 @@ class TicketResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class LoginRequest(BaseModel):
-    username: str
-    password: str
-
-
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-
-
-class PaginatedResponse(BaseModel):
-    items: list[TicketResponse]
-    total: int
-    page: int
-    page_size: int
-    total_pages: int
-
-
-class ErrorResponse(BaseModel):
-    detail: str

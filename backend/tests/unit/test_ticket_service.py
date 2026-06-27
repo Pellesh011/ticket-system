@@ -14,8 +14,6 @@ from app.services.ticket_service import TicketService
 
 from datetime import datetime, timezone
 
-from app.core.domain.enums import TicketStatus
-
 
 class FakeTicketRepository:
     def __init__(self):

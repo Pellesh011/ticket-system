@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timezone
-from math import ceil
 
 from app.core.domain.entities import Ticket
 from app.core.domain.enums import TicketPriority, TicketStatus
@@ -109,7 +108,3 @@ class TicketService:
             raise TicketDoneCannotDeleteError()
         await self._repo.delete(ticket_id)
         logger.info("Ticket deleted: id=%d", ticket_id)
-
-    async def get_total_pages(self, page_size: int = 20, **filters) -> int:
-        _, total = await self._repo.get_filtered(**filters, limit=1)
-        return max(1, ceil(total / page_size))

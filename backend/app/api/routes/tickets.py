@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.dependencies import get_ticket_service, require_admin
+from app.api.schemas.error import ErrorResponse
 from app.api.schemas.pagination import PaginatedResponse
 from app.api.schemas.ticket import (
     TicketCreate,
@@ -19,7 +20,6 @@ from app.core.domain.exceptions import (
     TicketDoneCannotEditError,
     TicketNotFoundError,
 )
-from app.core.domain.schemas import ErrorResponse
 from app.services.ticket_service import TicketService
 
 logger = logging.getLogger(__name__)
@@ -51,6 +51,7 @@ async def create_ticket(
 
 @router.get("", response_model=PaginatedResponse)
 async def list_tickets(
+    service: Annotated[TicketService, Depends(get_ticket_service)],
     status: TicketStatus | None = Query(None),
     priority: TicketPriority | None = Query(None),
     search: str | None = Query(None, min_length=1),
@@ -58,7 +59,6 @@ async def list_tickets(
     sort_order: str = Query("desc", pattern=r"^(asc|desc)$"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    service: Annotated[TicketService, Depends(get_ticket_service)] = None,
 ) -> PaginatedResponse:
     tickets, total = await service.get_tickets(
         status=status,
