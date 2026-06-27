@@ -69,7 +69,6 @@ export function useTickets() {
         await fetchTickets(filters)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to create ticket")
-        throw err
       } finally {
         setLoading(false)
       }
