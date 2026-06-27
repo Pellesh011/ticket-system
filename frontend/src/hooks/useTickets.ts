@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { api } from "../api/client"
 import type { Ticket, TicketCreate, TicketFilters, TicketStatusUpdate, TicketUpdate } from "../api/types"
 
@@ -28,12 +28,15 @@ export function useTickets() {
     page: 1,
     page_size: 20,
   })
+  const generationRef = useRef(0)
 
   const fetchTickets = useCallback(async (f: TicketFilters) => {
+    const gen = ++generationRef.current
     setLoading(true)
     setError(null)
     try {
       const data = await api.tickets.list(f)
+      if (gen !== generationRef.current) return
       setTickets(data.items)
       setPagination({
         total: data.total,
@@ -42,10 +45,13 @@ export function useTickets() {
         total_pages: data.total_pages,
       })
     } catch (err) {
+      if (gen !== generationRef.current) return
       setError(err instanceof Error ? err.message : "Failed to load tickets")
       setTickets([])
     } finally {
-      setLoading(false)
+      if (gen === generationRef.current) {
+        setLoading(false)
+      }
     }
   }, [])
 
