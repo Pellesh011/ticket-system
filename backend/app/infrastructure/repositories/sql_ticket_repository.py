@@ -88,6 +88,12 @@ class SQLTicketRepository(ITicketRepository):
         skip: int = 0,
         limit: int = 20,
     ) -> tuple[list[Ticket], int]:
+        """Get filtered, sorted, paginated tickets.
+
+        Note: `search` uses `ILIKE %pattern%` which causes full table scans.
+        For production use with large datasets, consider FTS5 (SQLite) or
+        a dedicated search engine.
+        """
         query = select(TicketModel)
         count_query = select(func.count(TicketModel.id))
 

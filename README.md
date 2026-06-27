@@ -195,3 +195,7 @@ GitHub Actions автоматически запускается при push/PR 
 - **frontend-build** — Node 20, `npm run lint` + `npm run build`
 
 Джобы выполняются параллельно. Результат: https://github.com/Pellesh011/ticket-system/actions
+
+## Известные ограничения
+
+- **Поиск по тексту:** поиск в тикетах (`GET /api/tickets?search=...`) использует `ILIKE %pattern%`, что вызывает full table scan. Для больших объёмов данных рекомендуется внедрить FTS5 (SQLite) или внешний поисковый движок.
