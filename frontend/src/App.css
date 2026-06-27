@@ -73,6 +73,18 @@
   background: var(--primary-hover);
 }
 
+.input-error {
+  border-color: #c62828 !important;
+  outline: 1px solid #c62828;
+}
+
+.field-error {
+  display: block;
+  color: #c62828;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
 /* Filters */
 .ticket-filters {
   display: flex;
