@@ -1,4 +1,4 @@
-from sqlalchemy import case, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.domain.entities import Ticket
@@ -83,24 +83,17 @@ class SQLTicketRepository(ITicketRepository):
         status: TicketStatus | None = None,
         priority: TicketPriority | None = None,
         search: str | None = None,
-        sort_by: list[str] | None = None,
-        sort_order: list[str] | None = None,
+        sort_by: str = "created_at",
+        sort_order: str = "desc",
         skip: int = 0,
         limit: int = 20,
     ) -> tuple[list[Ticket], int]:
         """Get filtered, sorted, paginated tickets.
 
-        `sort_by` accepts column names: ``created_at``, ``priority``, ``id``.
-        For priority, semantic order (high > normal > low) is used.
-        If `sort_by` is longer than `sort_order`, missing orders default to ``asc``.
-
         Note: `search` uses `ILIKE %pattern%` which causes full table scans.
         For production use with large datasets, consider FTS5 (SQLite) or
         a dedicated search engine.
         """
-        _sort_by = sort_by or ["created_at"]
-        _sort_order = sort_order or ["desc"]
-
         query = select(TicketModel)
         count_query = select(func.count(TicketModel.id))
 
@@ -118,21 +111,11 @@ class SQLTicketRepository(ITicketRepository):
             query = query.where(search_filter)
             count_query = count_query.where(search_filter)
 
-        priority_order = case(
-            (TicketModel.priority == "high", 0),
-            (TicketModel.priority == "normal", 1),
-            (TicketModel.priority == "low", 2),
-            else_=3,
-        )
-
-        for i, field in enumerate(_sort_by):
-            order = _sort_order[i] if i < len(_sort_order) else "asc"
-            column = getattr(TicketModel, field, None)
-            if column is None:
-                continue
-            if field == "priority":
-                column = priority_order
-            query = query.order_by(column.desc() if order == "desc" else column.asc())
+        sort_column = getattr(TicketModel, sort_by, TicketModel.created_at)
+        if sort_order == "desc":
+            query = query.order_by(sort_column.desc())
+        else:
+            query = query.order_by(sort_column.asc())
 
         total_result = await self._session.execute(count_query)
         total = total_result.scalar() or 0
