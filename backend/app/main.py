@@ -38,7 +38,7 @@ async def _seed_admin() -> None:
         if not admin:
             admin_user = User(
                 username=settings.admin_username,
-                hashed_password=password_service.hash(settings.admin_password),
+                hashed_password=await password_service.hash(settings.admin_password),
             )
             await repo.create(admin_user)
             await session.commit()

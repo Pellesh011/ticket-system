@@ -19,7 +19,7 @@ class AuthService:
 
     async def login(self, username: str, password: str) -> str:
         user = await self._repo.get_by_username(username)
-        if not user or not self._password_service.verify(password, user.hashed_password):
+        if not user or not await self._password_service.verify(password, user.hashed_password):
             raise AuthenticationError()
         token = self._create_token(username)
         logger.info("User logged in: %s", username)

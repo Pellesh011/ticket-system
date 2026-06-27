@@ -2,8 +2,8 @@ from app.infrastructure.security.password import hash_password, verify_password
 
 
 class PasswordService:
-    def hash(self, password: str) -> str:
-        return hash_password(password)
+    async def hash(self, password: str) -> str:
+        return await hash_password(password)
 
-    def verify(self, plain_password: str, hashed_password: str) -> bool:
-        return verify_password(plain_password, hashed_password)
+    async def verify(self, plain_password: str, hashed_password: str) -> bool:
+        return await verify_password(plain_password, hashed_password)
