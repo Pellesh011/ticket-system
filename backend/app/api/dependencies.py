@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.infrastructure.database.session import get_session
 from app.infrastructure.repositories.sql_ticket_repository import SQLTicketRepository
 from app.infrastructure.repositories.sql_user_repository import SQLUserRepository
+from app.infrastructure.services.password_service import PasswordService
 from app.services.auth_service import AuthService
 from app.services.ticket_service import TicketService
 
@@ -18,12 +19,13 @@ async def get_ticket_service(session: Annotated[AsyncSession, Depends(get_sessio
 
 async def get_auth_service(session: Annotated[AsyncSession, Depends(get_session)]) -> AsyncGenerator[AuthService, None]:
     repository = SQLUserRepository(session)
-    yield AuthService(repository)
+    password_service = PasswordService()
+    yield AuthService(repository, password_service)
 
 
 async def require_admin(
     authorization: Annotated[str | None, Header()] = None,
-    auth_service: Annotated[AuthService, Depends(get_auth_service)] = None,
+    auth_service: Annotated[AuthService, Depends(get_auth_service)] = None,  # type: ignore[assignment]
 ) -> None:
     if not authorization:
         raise HTTPException(status_code=403, detail="Authorization header required")

@@ -7,21 +7,22 @@ from app.config import settings
 from app.core.domain.entities import User
 from app.core.domain.exceptions import AuthenticationError, UnauthorizedError
 from app.core.repositories.user_repository import IUserRepository
-from app.infrastructure.security.password import hash_password, verify_password
+from app.core.services.password_service import IPasswordService
 
 logger = logging.getLogger(__name__)
 
 
 class AuthService:
-    def __init__(self, user_repository: IUserRepository) -> None:
+    def __init__(self, user_repository: IUserRepository, password_service: IPasswordService) -> None:
         self._repo = user_repository
+        self._password_service = password_service
 
     async def _ensure_admin_exists(self) -> None:
         admin = await self._repo.get_by_username(settings.admin_username)
         if not admin:
             admin_user = User(
                 username=settings.admin_username,
-                hashed_password=hash_password(settings.admin_password),
+                hashed_password=self._password_service.hash(settings.admin_password),
             )
             await self._repo.create(admin_user)
             logger.info("Admin user created: %s", settings.admin_username)
@@ -29,7 +30,7 @@ class AuthService:
     async def login(self, username: str, password: str) -> str:
         await self._ensure_admin_exists()
         user = await self._repo.get_by_username(username)
-        if not user or not verify_password(password, user.hashed_password):
+        if not user or not self._password_service.verify(password, user.hashed_password):
             raise AuthenticationError()
         token = self._create_token(username)
         logger.info("User logged in: %s", username)

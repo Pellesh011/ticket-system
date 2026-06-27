@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 import os
 
 
@@ -13,4 +14,4 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     salt = bytes.fromhex(salt_hex)
     expected_key = bytes.fromhex(key_hex)
     key = hashlib.pbkdf2_hmac("sha256", plain_password.encode(), salt, 100_000)
-    return key == expected_key
+    return hmac.compare_digest(key, expected_key)

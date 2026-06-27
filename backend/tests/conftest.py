@@ -1,24 +1,19 @@
-import asyncio
+import os
 from collections.abc import AsyncGenerator
-from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.infrastructure.database.base import Base
-from app.infrastructure.database.session import get_session
-from app.main import app
+os.environ.setdefault("SECRET_KEY", "test-secret-key")
+os.environ.setdefault("ADMIN_PASSWORD", "admin")
+
+from app.infrastructure.database.base import Base  # noqa: E402
+from app.infrastructure.database.session import get_session  # noqa: E402
+from app.main import app  # noqa: E402
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
-
-
-@pytest.fixture(scope="session")
-def event_loop():
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
 
 
 @pytest_asyncio.fixture
@@ -53,11 +48,11 @@ async def async_client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, 
 
 
 @pytest_asyncio.fixture
-async def auth_client(async_client: AsyncClient) -> AsyncClient:
+async def auth_client(async_client: AsyncClient) -> AsyncGenerator[AsyncClient, None]:
     response = await async_client.post("/api/auth/login", json={
         "username": "admin",
         "password": "admin",
     })
     token = response.json()["access_token"]
     async_client.headers["Authorization"] = f"Bearer {token}"
-    return async_client
+    yield async_client

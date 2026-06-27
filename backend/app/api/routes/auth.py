@@ -1,11 +1,11 @@
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 
 from app.api.dependencies import get_auth_service
 from app.api.schemas.auth import LoginRequest, TokenResponse
-from app.core.domain.exceptions import AuthenticationError
+from app.core.domain.exceptions import AuthenticationError, UnauthorizedError
 from app.services.auth_service import AuthService
 
 logger = logging.getLogger(__name__)
@@ -27,8 +27,15 @@ async def login(
 @router.get("/verify")
 async def verify(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
-    authorization: Annotated[str | None, Depends(lambda: None)] = None,
+    authorization: Annotated[str | None, Header()] = None,
 ) -> dict:
-    from fastapi import Header
-
-    return {"valid": True}
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header required")
+    token = authorization.removeprefix("Bearer ")
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid authorization header")
+    try:
+        await auth_service.verify_admin(token)
+        return {"valid": True}
+    except UnauthorizedError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
