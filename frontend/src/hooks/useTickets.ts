@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { api } from "../api/client"
-import type { Ticket, TicketCreate, TicketFilters, TicketStatusUpdate, TicketUpdate } from "../api/types"
+import type { Ticket, TicketCreate, TicketFilters, TicketStatusUpdate } from "../api/types"
 
 interface PaginationInfo {
   total: number
@@ -97,21 +97,6 @@ export function useTickets() {
     [filters, fetchTickets],
   )
 
-  const updateTicket = useCallback(
-    async (id: number, data: TicketUpdate) => {
-      setLoading(true)
-      try {
-        await api.tickets.update(id, data)
-        await fetchTickets(filters)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to update ticket")
-      } finally {
-        setLoading(false)
-      }
-    },
-    [filters, fetchTickets],
-  )
-
   const deleteTicket = useCallback(
     async (id: number) => {
       setLoading(true)
@@ -143,9 +128,7 @@ export function useTickets() {
     updateFilters,
     createTicket,
     updateStatus,
-    updateTicket,
     deleteTicket,
     setPage,
-    refresh: () => fetchTickets(filters),
   }
 }
