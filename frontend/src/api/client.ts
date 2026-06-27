@@ -58,8 +58,10 @@ export const api = {
       if (filters.status) params.set("status", filters.status)
       if (filters.priority) params.set("priority", filters.priority)
       if (filters.search) params.set("search", filters.search)
-      params.set("sort_by", filters.sort_by)
-      params.set("sort_order", filters.sort_order)
+      for (const level of filters.sort) {
+        params.append("sort_by", level.field)
+        params.append("sort_order", level.order)
+      }
       params.set("page", String(filters.page))
       params.set("page_size", String(filters.page_size))
       return request(`/api/tickets?${params}`)
