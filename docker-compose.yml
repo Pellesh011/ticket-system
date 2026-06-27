@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - tickets_data:/app/data
+      - tickets_logs:/app/logs
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/tickets.db
+      - DEBUG=false
+      - SECRET_KEY=change-this-in-production
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - CORS_ORIGINS=["http://localhost:5173","http://127.0.0.1:5173"]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    restart: unless-stopped
+
+volumes:
+  tickets_data:
+  tickets_logs:

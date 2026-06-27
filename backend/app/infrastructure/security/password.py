@@ -1,0 +1,16 @@
+import hashlib
+import os
+
+
+def hash_password(password: str) -> str:
+    salt = os.urandom(16)
+    key = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 100_000)
+    return salt.hex() + ":" + key.hex()
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    salt_hex, key_hex = hashed_password.split(":")
+    salt = bytes.fromhex(salt_hex)
+    expected_key = bytes.fromhex(key_hex)
+    key = hashlib.pbkdf2_hmac("sha256", plain_password.encode(), salt, 100_000)
+    return key == expected_key
