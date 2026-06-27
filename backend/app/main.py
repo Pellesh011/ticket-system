@@ -22,6 +22,16 @@ from app.infrastructure.database.engine import engine
 logger = logging.getLogger(__name__)
 
 
+async def _run_migrations() -> None:
+    from alembic import command
+    from alembic.config import Config
+
+    logger.info("Running database migrations...")
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
+    logger.info("Database migrations complete")
+
+
 async def _seed_admin() -> None:
     if not settings.admin_password:
         logger.warning("ADMIN_PASSWORD is empty — skipping admin seeding")
@@ -63,6 +73,7 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
 
     logger.info("Starting ticket-system application")
 
+    await _run_migrations()
     await _seed_admin()
 
     yield
