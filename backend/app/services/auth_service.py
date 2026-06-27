@@ -29,12 +29,11 @@ class AuthService:
         payload = {"sub": username, "exp": expire}
         return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
 
-    async def verify_admin(self, token: str) -> bool:
+    async def verify_admin(self, token: str) -> None:
         try:
             payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
             username: str | None = payload.get("sub")
             if not username or username != settings.admin_username:
                 raise UnauthorizedError()
-            return True
         except JWTError:
             raise UnauthorizedError()
