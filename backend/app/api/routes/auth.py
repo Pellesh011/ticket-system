@@ -35,12 +35,12 @@ async def verify(
     authorization: Annotated[str | None, Header()] = None,
 ) -> dict:
     if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header required")
+        raise HTTPException(status_code=401, detail="Требуется заголовок авторизации")
     token = authorization.removeprefix("Bearer ")
     if not token:
-        raise HTTPException(status_code=401, detail="Invalid authorization header")
+        raise HTTPException(status_code=401, detail="Неверный заголовок авторизации")
     try:
         await auth_service.verify_admin(token)
         return {"valid": True}
     except UnauthorizedError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+        raise HTTPException(status_code=401, detail="Неверный или истёкший токен")

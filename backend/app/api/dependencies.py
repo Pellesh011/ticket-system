@@ -30,11 +30,11 @@ async def require_admin(
     auth_service: Annotated[AuthService, Depends(get_auth_service)] = None,  # type: ignore[assignment]
 ) -> None:
     if not authorization:
-        raise HTTPException(status_code=403, detail="Authorization header required")
+        raise HTTPException(status_code=403, detail="Требуется заголовок авторизации")
     token = authorization.removeprefix("Bearer ")
     if not token:
-        raise HTTPException(status_code=403, detail="Invalid authorization header")
+        raise HTTPException(status_code=403, detail="Неверный заголовок авторизации")
     try:
         await auth_service.verify_admin(token)
     except (UnauthorizedError, JWTError):
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail="Требуется доступ администратора")

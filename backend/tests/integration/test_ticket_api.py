@@ -116,7 +116,7 @@ class TestTicketAPI:
         await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "done"})
         response = await async_client.patch(f"/api/tickets/{ticket_id}", json={"title": "New"})
         assert response.status_code == 400
-        assert "done" in response.json()["detail"].lower()
+        assert "выполнено" in response.json()["detail"].lower()
 
     async def test_update_status_done(self, async_client: AsyncClient):
         resp = await async_client.post("/api/tickets", json={"title": "Finish me"})
@@ -133,7 +133,7 @@ class TestTicketAPI:
         await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "done"})
         response = await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "new"})
         assert response.status_code == 400
-        assert "done" in response.json()["detail"].lower()
+        assert "выполнено" in response.json()["detail"].lower()
 
     async def test_delete_ticket_as_admin(self, auth_client: AsyncClient):
         resp = await auth_client.post("/api/tickets", json={"title": "Delete me"})
