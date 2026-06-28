@@ -81,7 +81,10 @@ const TicketRow = memo(function TicketRow({ ticket, isAdmin }: TicketRowProps) {
         </span>
       </td>
       <td className="date-cell">
-        {new Date(ticket.created_at).toLocaleDateString()}
+        {new Date(ticket.created_at).toLocaleString("ru-RU")}
+      </td>
+      <td className="date-cell">
+        {new Date(ticket.updated_at).toLocaleString("ru-RU")}
       </td>
       <td className="actions-cell">
         {isAdmin && !isDone && (
@@ -112,6 +115,7 @@ export function TicketTable() {
             <th>Статус</th>
             <th>Приоритет</th>
             <th>Создан</th>
+            <th>Изменён</th>
             <th>Действия</th>
           </tr>
         </thead>
