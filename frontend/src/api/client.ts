@@ -41,8 +41,12 @@ async function request<T>(
   })
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({ detail: "Unknown error" }))
-    throw new ApiError(response.status, body.detail || "Request failed")
+    const body = await response.json().catch(() => ({
+      detail: response.status === 500
+        ? "Внутренняя ошибка сервера"
+        : "Неизвестная ошибка",
+    }))
+    throw new ApiError(response.status, body.detail || "Ошибка запроса")
   }
 
   if (response.status === 204) {

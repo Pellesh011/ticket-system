@@ -76,7 +76,6 @@ class TestTZDateTime:
         await db_session.commit()
 
     async def test_ticket_timestamps_are_timezone_aware(self, async_client):
-        from httpx import AsyncClient
         response = await async_client.post("/api/tickets", json={
             "title": "Timezone test",
             "priority_id": 2,
@@ -91,7 +90,6 @@ class TestTZDateTime:
         assert created.tzinfo is not None
 
     async def test_ticket_list_timestamps_are_timezone_aware(self, async_client):
-        from httpx import AsyncClient
         await async_client.post("/api/tickets", json={"title": "List test"})
         response = await async_client.get("/api/tickets")
         assert response.status_code == 200

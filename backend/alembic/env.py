@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.config import settings
 from app.infrastructure.database.base import Base
-from app.infrastructure.database.models import TicketModel, UserModel  # noqa: F401
+from app.infrastructure.database.models import PriorityModel, TicketModel, UserModel  # noqa: F401
 
 config = context.config
 if config.config_file_name is not None:
