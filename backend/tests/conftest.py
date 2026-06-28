@@ -10,6 +10,7 @@ os.environ.setdefault("ADMIN_PASSWORD", "admin")
 
 from app.core.domain.entities import User  # noqa: E402
 from app.infrastructure.database.base import Base  # noqa: E402
+from app.infrastructure.database.seed import seed_priorities  # noqa: E402
 from app.infrastructure.database.session import get_session  # noqa: E402
 from app.infrastructure.repositories.sql_user_repository import SQLUserRepository  # noqa: E402
 from app.infrastructure.services.password_service import PasswordService  # noqa: E402
@@ -40,6 +41,8 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
     async with session_factory() as session:
         await _seed_test_admin(session)
+        await seed_priorities(session)
+        await session.commit()
         yield session
 
     async with engine.begin() as conn:

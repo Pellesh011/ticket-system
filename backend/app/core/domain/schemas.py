@@ -1,38 +1,38 @@
 from datetime import datetime
-from typing import Annotated
 
-from pydantic import BaseModel, BeforeValidator, Field, PlainSerializer
+from pydantic import BaseModel, Field
 
-from app.core.domain.enums import TicketPriority, TicketStatus
-
-
-def _priority_from_any(v: object) -> TicketPriority | None:
-    if v is None or isinstance(v, TicketPriority):
-        return v
-    if isinstance(v, str):
-        return TicketPriority[v.upper()]
-    if isinstance(v, int):
-        return TicketPriority(v)
-    raise ValueError(f"Invalid priority value: {v}")
+from app.core.domain.enums import TicketStatus
 
 
-PriorityField = Annotated[
-    TicketPriority,
-    BeforeValidator(_priority_from_any),
-    PlainSerializer(lambda p: p.name.lower(), return_type=str),
-]
+class PriorityCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=20)
+    sort_order: int = 0
+
+
+class PriorityUpdate(BaseModel):
+    name: str | None = Field(None, min_length=1, max_length=20)
+    sort_order: int | None = None
+
+
+class PriorityResponse(BaseModel):
+    id: int
+    name: str
+    sort_order: int
+
+    model_config = {"from_attributes": True}
 
 
 class TicketCreate(BaseModel):
     title: str = Field(..., min_length=3, max_length=120)
     description: str | None = Field(None, max_length=1000)
-    priority: PriorityField = TicketPriority.NORMAL
+    priority_id: int = 2
 
 
 class TicketUpdate(BaseModel):
     title: str | None = Field(None, min_length=3, max_length=120)
     description: str | None = Field(None, max_length=1000)
-    priority: PriorityField | None = None
+    priority_id: int | None = None
 
 
 class TicketStatusUpdate(BaseModel):
@@ -44,10 +44,9 @@ class TicketResponse(BaseModel):
     title: str
     description: str | None
     status: TicketStatus
-    priority: PriorityField
+    priority_id: int
+    priority_name: str
     created_at: datetime
     updated_at: datetime
 
     model_config = {"from_attributes": True}
-
-

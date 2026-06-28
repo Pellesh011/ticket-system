@@ -1,6 +1,6 @@
 import pytest
 
-from app.core.domain.enums import TicketPriority, TicketStatus
+from app.core.domain.enums import TicketStatus
 from app.core.domain.exceptions import (
     TicketDoneCannotChangeStatusError,
     TicketDoneCannotDeleteError,
@@ -43,7 +43,7 @@ class FakeTicketRepository:
     async def get_filtered(
         self,
         status=None,
-        priority=None,
+        priority_id=None,
         search=None,
         sort_by="created_at",
         sort_order="desc",
@@ -62,17 +62,17 @@ def service():
 
 class TestTicketService:
     async def test_create_ticket(self, service: TicketService):
-        data = TicketCreate(title="Test ticket", priority=TicketPriority.HIGH)
+        data = TicketCreate(title="Test ticket", priority_id=3)
         result = await service.create_ticket(data)
         assert result.title == "Test ticket"
-        assert result.priority == TicketPriority.HIGH
+        assert result.priority_id == 3
         assert result.status == TicketStatus.NEW
         assert result.id is not None
 
     async def test_create_ticket_default_priority(self, service: TicketService):
         data = TicketCreate(title="Test ticket")
         result = await service.create_ticket(data)
-        assert result.priority == TicketPriority.NORMAL
+        assert result.priority_id == 2
         assert result.status == TicketStatus.NEW
 
     async def test_get_ticket_not_found(self, service: TicketService):

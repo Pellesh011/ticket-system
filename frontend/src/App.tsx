@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
-import { fetchTickets, selectTicketsLoading, selectTicketsError, clearError } from "./features/tickets/ticketsSlice";
+import { fetchTickets, fetchPriorities, selectTicketsLoading, selectTicketsError, clearError } from "./features/tickets/ticketsSlice";
 import { selectFilters } from "./features/tickets/ticketsSlice";
 import { LoginModal } from "./features/auth/LoginModal";
 import { TicketForm } from "./features/tickets/TicketForm";
@@ -17,6 +17,7 @@ function App() {
   const filters = useAppSelector(selectFilters);
 
   useEffect(() => {
+    dispatch(fetchPriorities());
     dispatch(fetchTickets(filters));
   }, [dispatch, filters]);
 

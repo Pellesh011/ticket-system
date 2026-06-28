@@ -10,12 +10,13 @@ class TestTicketAPI:
     async def test_create_ticket(self, async_client: AsyncClient):
         response = await async_client.post("/api/tickets", json={
             "title": "Test ticket",
-            "priority": "high",
+            "priority_id": 3,
         })
         assert response.status_code == 201
         data = response.json()
         assert data["title"] == "Test ticket"
-        assert data["priority"] == "high"
+        assert data["priority_id"] == 3
+        assert data["priority_name"] == "high"
         assert data["status"] == "new"
         assert data["id"] is not None
 
@@ -61,12 +62,13 @@ class TestTicketAPI:
 
     async def test_filter_by_priority(self, async_client: AsyncClient):
         await async_client.post("/api/tickets", json={"title": "Normal"})
-        await async_client.post("/api/tickets", json={"title": "High", "priority": "high"})
-        response = await async_client.get("/api/tickets", params={"priority": "high"})
+        await async_client.post("/api/tickets", json={"title": "High", "priority_id": 3})
+        response = await async_client.get("/api/tickets", params={"priority_id": 3})
         assert response.status_code == 200
         data = response.json()
         assert data["total"] == 1
-        assert data["items"][0]["priority"] == "high"
+        assert data["items"][0]["priority_id"] == 3
+        assert data["items"][0]["priority_name"] == "high"
 
     async def test_search_by_title(self, async_client: AsyncClient):
         await async_client.post("/api/tickets", json={"title": "Fix login bug"})
@@ -103,11 +105,12 @@ class TestTicketAPI:
         ticket_id = resp.json()["id"]
         response = await async_client.patch(f"/api/tickets/{ticket_id}", json={
             "title": "Updated",
-            "priority": "high",
+            "priority_id": 3,
         })
         assert response.status_code == 200
         assert response.json()["title"] == "Updated"
-        assert response.json()["priority"] == "high"
+        assert response.json()["priority_id"] == 3
+        assert response.json()["priority_name"] == "high"
 
     async def test_update_done_ticket_returns_400(self, async_client: AsyncClient):
         resp = await async_client.post("/api/tickets", json={"title": "Test"})

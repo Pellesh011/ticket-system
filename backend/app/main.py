@@ -17,7 +17,9 @@ from app.core.domain.exceptions import (
     UnauthorizedError,
 )
 from app.core.logging import setup_logging
-from app.infrastructure.database.engine import engine
+from app.infrastructure.database.base import Base
+from app.infrastructure.database.engine import engine, async_session_factory
+from app.infrastructure.database.seed import seed_priorities
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +37,13 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
         logger.error("Set ADMIN_PASSWORD environment variable to a strong password.")
         logger.error("Application will not start until a secure ADMIN_PASSWORD is configured.")
         sys.exit(1)
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    async with async_session_factory() as session:
+        await seed_priorities(session)
+        await session.commit()
 
     logger.info("Starting ticket-system application")
 
@@ -63,7 +72,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(tickets.router)
+app.include_router(tickets.ticket_router)
+app.include_router(tickets.priority_router)
 app.include_router(auth.router)
 
 

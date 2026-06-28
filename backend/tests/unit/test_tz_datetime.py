@@ -79,7 +79,7 @@ class TestTZDateTime:
         from httpx import AsyncClient
         response = await async_client.post("/api/tickets", json={
             "title": "Timezone test",
-            "priority": "normal",
+            "priority_id": 2,
         })
         assert response.status_code == 201
         data = response.json()

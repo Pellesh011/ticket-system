@@ -1,13 +1,18 @@
 export type TicketStatus = "new" | "in_progress" | "done"
 
-export type TicketPriority = "low" | "normal" | "high"
+export interface Priority {
+  id: number
+  name: string
+  sort_order: number
+}
 
 export interface Ticket {
   id: number
   title: string
   description: string | null
   status: TicketStatus
-  priority: TicketPriority
+  priority_id: number
+  priority_name: string
   created_at: string
   updated_at: string
 }
@@ -23,13 +28,13 @@ export interface PaginatedResponse {
 export interface TicketCreate {
   title: string
   description?: string
-  priority: TicketPriority
+  priority_id: number
 }
 
 export interface TicketUpdate {
   title?: string
   description?: string
-  priority?: TicketPriority
+  priority_id?: number
 }
 
 export interface TicketStatusUpdate {
@@ -48,7 +53,7 @@ export interface TokenResponse {
 
 export interface TicketFilters {
   status: TicketStatus | ""
-  priority: TicketPriority | ""
+  priority_id: number | ""
   search: string
   sort_by: "created_at" | "priority"
   sort_order: "asc" | "desc"

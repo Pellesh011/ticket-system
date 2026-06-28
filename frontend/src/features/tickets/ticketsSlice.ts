@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 import { api } from "../../api/client";
 import type {
+  Priority,
   Ticket,
   TicketCreate,
   TicketFilters,
@@ -19,13 +20,14 @@ interface TicketsState {
   items: Ticket[];
   pagination: PaginationInfo;
   filters: TicketFilters;
+  priorities: Priority[];
   loading: boolean;
   error: string | null;
 }
 
 const defaultFilters: TicketFilters = {
   status: "",
-  priority: "",
+  priority_id: "",
   search: "",
   sort_by: "created_at",
   sort_order: "desc",
@@ -42,6 +44,7 @@ const initialState: TicketsState = {
     total_pages: 0,
   },
   filters: { ...defaultFilters },
+  priorities: [],
   loading: false,
   error: null,
 };
@@ -107,6 +110,19 @@ export const deleteTicket = createAsyncThunk(
   },
 );
 
+export const fetchPriorities = createAsyncThunk(
+  "tickets/fetchPriorities",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await api.priorities.list();
+    } catch (err) {
+      return rejectWithValue(
+        err instanceof Error ? err.message : "Failed to load priorities",
+      );
+    }
+  },
+);
+
 const ticketsSlice = createSlice({
   name: "tickets",
   initialState,
@@ -152,6 +168,9 @@ const ticketsSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      .addCase(fetchPriorities.fulfilled, (state, action) => {
+        state.priorities = action.payload;
+      })
       .addCase(createTicket.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -187,6 +206,7 @@ export const { setFilters, setPage, clearError } = ticketsSlice.actions;
 export const selectTickets = (state: RootState) => state.tickets.items;
 export const selectPagination = (state: RootState) => state.tickets.pagination;
 export const selectFilters = (state: RootState) => state.tickets.filters;
+export const selectPriorities = (state: RootState) => state.tickets.priorities;
 export const selectTicketsLoading = (state: RootState) => state.tickets.loading;
 export const selectTicketsError = (state: RootState) => state.tickets.error;
 
