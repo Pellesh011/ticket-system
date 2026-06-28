@@ -40,13 +40,13 @@ export function Pagination() {
 
   return (
     <div className="pagination">
-      <span>Total: {total}</span>
+      <span>Всего: {total}</span>
       <div className="pagination-controls">
         <button
           disabled={page <= 1}
           onClick={() => dispatch(setPage(page - 1))}
         >
-          Prev
+          Назад
         </button>
         {pages.map((p, i) =>
           p === "..." ? (
@@ -67,7 +67,7 @@ export function Pagination() {
           disabled={page >= total_pages}
           onClick={() => dispatch(setPage(page + 1))}
         >
-          Next
+          Далее
         </button>
       </div>
     </div>

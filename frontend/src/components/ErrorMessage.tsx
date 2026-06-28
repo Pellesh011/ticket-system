@@ -7,7 +7,7 @@ export function ErrorMessage({ message, onDismiss }: ErrorMessageProps) {
   return (
     <div className="error-banner">
       <span>{message}</span>
-      {onDismiss && <button onClick={onDismiss}>Dismiss</button>}
+      {onDismiss && <button onClick={onDismiss}>Закрыть</button>}
     </div>
   )
 }

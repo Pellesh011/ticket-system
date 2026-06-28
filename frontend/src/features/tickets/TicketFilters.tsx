@@ -27,7 +27,7 @@ export function TicketFilters() {
     <div className="ticket-filters">
       <input
         type="text"
-        placeholder="Search title or description..."
+        placeholder="Поиск по названию или описанию..."
         value={search}
         onChange={handleSearchChange}
         className="search-input"
@@ -38,10 +38,10 @@ export function TicketFilters() {
           dispatch(setFilters({ status: e.target.value as TicketStatus | "" }))
         }
       >
-        <option value="">All Status</option>
-        <option value="new">New</option>
-        <option value="in_progress">In Progress</option>
-        <option value="done">Done</option>
+        <option value="">Все статусы</option>
+        <option value="new">Новый</option>
+        <option value="in_progress">В работе</option>
+        <option value="done">Выполнено</option>
       </select>
       <select
         value={filters.priority}
@@ -49,10 +49,10 @@ export function TicketFilters() {
           dispatch(setFilters({ priority: e.target.value as TicketPriority | "" }))
         }
       >
-        <option value="">All Priority</option>
-        <option value="low">Low</option>
-        <option value="normal">Normal</option>
-        <option value="high">High</option>
+        <option value="">Все приоритеты</option>
+        <option value="low">Низкий</option>
+        <option value="normal">Средний</option>
+        <option value="high">Высокий</option>
       </select>
       <select
         value={`${filters.sort_by}-${filters.sort_order}`}
@@ -64,10 +64,10 @@ export function TicketFilters() {
           dispatch(setFilters({ sort_by, sort_order }));
         }}
       >
-        <option value="created_at-desc">Newest First</option>
-        <option value="created_at-asc">Oldest First</option>
-        <option value="priority-desc">Priority High</option>
-        <option value="priority-asc">Priority Low</option>
+        <option value="created_at-desc">Сначала новые</option>
+        <option value="created_at-asc">Сначала старые</option>
+        <option value="priority-desc">Высокий приоритет</option>
+        <option value="priority-asc">Низкий приоритет</option>
       </select>
     </div>
   );

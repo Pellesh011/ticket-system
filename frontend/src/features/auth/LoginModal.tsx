@@ -44,17 +44,17 @@ export function LoginModal() {
         className="login-btn"
         onClick={() => (isAdmin ? handleLogout() : handleOpen())}
       >
-        {isAdmin ? "Logout" : "Admin Login"}
+        {isAdmin ? "Выйти" : "Вход администратора"}
       </button>
       {open && (
         <div className="modal-overlay" onClick={() => setOpen(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Admin Login</h3>
+            <h3>Вход администратора</h3>
             {error && <div className="error-message">{error}</div>}
             <form onSubmit={handleLogin}>
               <input
                 type="text"
-                placeholder="Username"
+                placeholder="Имя пользователя"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -62,21 +62,21 @@ export function LoginModal() {
               />
               <input
                 type="password"
-                placeholder="Password"
+                placeholder="Пароль"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
               />
               <button type="submit" disabled={loading}>
-                {loading ? "Logging in..." : "Login"}
+                {loading ? "Вход..." : "Войти"}
               </button>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 className="cancel-btn"
               >
-                Cancel
+                Отмена
               </button>
             </form>
           </div>
