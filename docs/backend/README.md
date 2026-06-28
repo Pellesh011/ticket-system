@@ -19,6 +19,7 @@ app/
 ├── core/                   # Ядро домена (чистая бизнес-логика)
 │   ├── domain/
 │   │   ├── entities.py     # Доменные сущности (dataclass): Ticket, User, Priority
+│   │   ├── action_matrix.py # Правила действий и переходов статусов (Action Matrix)
 │   │   ├── enums.py        # TicketStatus (TicketPriority удалён — теперь таблица)
 │   │   ├── exceptions.py   # Иерархия доменных исключений
 │   │   └── schemas.py      # Pydantic DTO (request/response)
@@ -86,10 +87,12 @@ DB Session → Repository → Service → Route Handler
 ```
 TicketDomainError (base)
 ├── TicketNotFoundError          # ticket_id
-├── TicketDoneError              # action
+├── TicketActionNotAllowedError  # action + status (основная ошибка, вытеснила TicketDoneError)
+├── TicketDoneError              # action (старая иерархия, оставлена для совместимости)
 │   ├── TicketDoneCannotEditError
 │   ├── TicketDoneCannotDeleteError
 │   └── TicketDoneCannotChangeStatusError
+├── TicketInvalidStatusTransitionError
 ├── AuthenticationError
 └── UnauthorizedError
 ```
@@ -103,4 +106,5 @@ TicketDomainError (base)
 - **Factory** — DI-функции и `async_session_factory`
 - **Strategy** — `sort_by`/`sort_order` динамически определяют сортировку
 - **Seed** — `seed_priorities()` заполняет таблицу `priorities` при первом запуске (выполняется в `lifespan`)
+- **Action Matrix** — единый источник правил для статусов тикетов. `ACTION_MATRIX` определяет, какие действия (`edit`, `delete`, `transition`) разрешены для каждого статуса. `VALID_TRANSITIONS` задаёт допустимые переходы между статусами. Хелперы `can_perform()`, `can_transition()`, `get_allowed_transitions()` используются как сервисом, так и фронтендом.
 - **TZDateTime** — кастомный `TypeDecorator` хранит UTC naive datetime в SQLite, возвращает timezone-aware UTC при чтении
