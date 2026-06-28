@@ -22,7 +22,7 @@ docker-compose up --build
 ## Тесты
 
 ```bash
-# Backend (33 теста)
+# Backend (60 тестов)
 cd backend && pytest -v
 
 # Frontend

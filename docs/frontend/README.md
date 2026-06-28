@@ -53,6 +53,7 @@ src/
     items: Ticket[],
     pagination: { total, page, page_size, total_pages },
     filters: TicketFilters,
+    priorities: Priority[],
     loading: boolean,
     error: string | null
   }
@@ -73,6 +74,7 @@ src/
 | Экшен | Тип | Описание |
 |-------|-----|----------|
 | `fetchTickets` | async thunk | Загрузка списка с фильтрами |
+| `fetchPriorities` | async thunk | Загрузка списка приоритетов |
 | `createTicket` | async thunk | Создание + рефетч списка |
 | `updateTicketStatus` | async thunk | Смена статуса + рефетч |
 | `deleteTicket` | async thunk | Удаление + рефетч |
@@ -86,21 +88,27 @@ src/
 
 ```typescript
 type TicketStatus = "new" | "in_progress" | "done"
-type TicketPriority = "low" | "normal" | "high"
+
+interface Priority {
+  id: number
+  name: string
+  sort_order: number
+}
 
 interface Ticket {
   id: number
   title: string
   description: string | null
   status: TicketStatus
-  priority: TicketPriority
+  priority_id: number
+  priority_name: string
   created_at: string
   updated_at: string
 }
 
 interface TicketFilters {
   status: TicketStatus | ""
-  priority: TicketPriority | ""
+  priority_id: number | ""
   search: string
   sort_by: "created_at" | "priority"
   sort_order: "asc" | "desc"
