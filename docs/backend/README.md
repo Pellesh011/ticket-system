@@ -74,6 +74,23 @@ Domain-слой (`core`) не зависит ни от каких внешних
 - `IUserRepository` — добавляет `get_by_username(...)`
 - Mapping Layer — функции `_to_entity()` / `_from_entity()` конвертируют ORM-модели ↔ доменные сущности
 
+### Управление зависимостями
+
+Два файла requirements:
+
+- **`requirements.txt`** — production-зависимости (FastAPI, SQLAlchemy, Alembic и т.д.)
+- **`requirements-dev.txt`** — включает `requirements.txt` + dev-зависимости (pytest, ruff, pre-commit, httpx)
+
+Для разработки:
+```bash
+pip install -r requirements-dev.txt
+```
+
+Для продакшена (Docker):
+```bash
+pip install -r requirements.txt
+```
+
 ### Dependency Injection
 
 FastAPI `Depends()` в `dependencies.py` собирает граф зависимостей на каждый запрос:

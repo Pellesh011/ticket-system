@@ -13,8 +13,8 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate
 
-# Установка зависимостей
-pip install -r requirements.txt
+# Установка зависимостей (включая dev: тесты, линтер, pre-commit)
+pip install -r requirements-dev.txt
 
 # Копирование .env
 cp .env.example .env
@@ -50,6 +50,12 @@ pytest tests/unit/ -v
 
 # Только integration-тесты
 pytest tests/integration/ -v
+
+# Линтер
+ruff check .
+
+# Форматирование
+ruff format --check .
 
 # С覆盖率
 pytest --cov=app --cov-report=term-missing
