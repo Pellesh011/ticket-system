@@ -6,6 +6,7 @@ import {
   deleteTicket,
   selectTickets,
 } from "./ticketsSlice";
+import { canPerform, getAllowedTransitions } from "./actionMatrix";
 import type { Ticket, TicketStatus } from "../../api/types";
 
 const statusColors: Record<TicketStatus, string> = {
@@ -18,12 +19,6 @@ const statusLabels: Record<TicketStatus, string> = {
   new: "Новый",
   in_progress: "В работе",
   done: "Выполнено",
-};
-
-const validTransitions: Record<TicketStatus, TicketStatus[]> = {
-  new: ["new", "in_progress", "done"],
-  in_progress: ["new", "in_progress", "done"],
-  done: ["done"],
 };
 
 interface TicketRowProps {
@@ -49,8 +44,6 @@ const TicketRow = memo(function TicketRow({ ticket, isAdmin }: TicketRowProps) {
     }
   };
 
-  const isDone = ticket.status === "done";
-
   return (
     <tr>
       <td>{ticket.title}</td>
@@ -60,9 +53,9 @@ const TicketRow = memo(function TicketRow({ ticket, isAdmin }: TicketRowProps) {
           className={`status-select ${statusColors[ticket.status]}`}
           value={ticket.status}
           onChange={handleStatusChange}
-          disabled={isDone}
+          disabled={!canPerform(ticket.status, "transition")}
         >
-          {validTransitions[ticket.status].map((s) => (
+          {getAllowedTransitions(ticket.status).map((s) => (
             <option key={s} value={s}>
               {statusLabels[s]}
             </option>
@@ -81,7 +74,7 @@ const TicketRow = memo(function TicketRow({ ticket, isAdmin }: TicketRowProps) {
         {new Date(ticket.updated_at).toLocaleString("ru-RU")}
       </td>
       <td className="actions-cell">
-        {isAdmin && !isDone && (
+        {isAdmin && canPerform(ticket.status, "delete") && (
           <button className="delete-btn" onClick={handleDelete} title="Удалить">
             X
           </button>

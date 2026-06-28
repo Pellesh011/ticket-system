@@ -32,6 +32,13 @@ class TicketDoneCannotChangeStatusError(TicketDoneError):
         super().__init__(action="change status of")
 
 
+class TicketActionNotAllowedError(TicketDomainError):
+    def __init__(self, action: str, status: str) -> None:
+        self.action = action
+        self.status = status
+        super().__init__(f"Действие '{action}' не разрешено для статуса '{status}'")
+
+
 class TicketInvalidStatusTransitionError(TicketDomainError):
     def __init__(self, current: str, target: str) -> None:
         self.current = current

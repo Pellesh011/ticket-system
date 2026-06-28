@@ -21,10 +21,7 @@ from app.api.schemas.ticket import (
 )
 from app.core.domain.enums import TicketStatus
 from app.core.domain.exceptions import (
-    TicketDoneCannotChangeStatusError,
-    TicketDoneCannotDeleteError,
-    TicketDoneCannotEditError,
-    TicketInvalidStatusTransitionError,
+    TicketActionNotAllowedError,
     TicketNotFoundError,
 )
 from app.services.ticket_service import TicketService
@@ -108,7 +105,7 @@ async def update_ticket(
         return await service.update_ticket(ticket_id, data)
     except TicketNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    except TicketDoneCannotEditError as e:
+    except TicketActionNotAllowedError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -122,9 +119,7 @@ async def update_ticket_status(
         return await service.update_status(ticket_id, data)
     except TicketNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    except TicketDoneCannotChangeStatusError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except TicketInvalidStatusTransitionError as e:
+    except TicketActionNotAllowedError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -138,7 +133,7 @@ async def delete_ticket(
         await service.delete_ticket(ticket_id)
     except TicketNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    except TicketDoneCannotDeleteError as e:
+    except TicketActionNotAllowedError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 

@@ -2,9 +2,7 @@ import pytest
 
 from app.core.domain.enums import TicketStatus
 from app.core.domain.exceptions import (
-    TicketDoneCannotChangeStatusError,
-    TicketDoneCannotDeleteError,
-    TicketDoneCannotEditError,
+    TicketActionNotAllowedError,
     TicketNotFoundError,
 )
 from app.core.domain.entities import Ticket
@@ -92,7 +90,7 @@ class TestTicketService:
         created = await service.create_ticket(TicketCreate(title="Test"))
         await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.IN_PROGRESS))
         await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.DONE))
-        with pytest.raises(TicketDoneCannotEditError):
+        with pytest.raises(TicketActionNotAllowedError):
             await service.update_ticket(created.id, TicketUpdate(title="New"))
 
     async def test_change_status(self, service: TicketService):
@@ -115,7 +113,7 @@ class TestTicketService:
         created = await service.create_ticket(TicketCreate(title="Test"))
         await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.IN_PROGRESS))
         await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.DONE))
-        with pytest.raises(TicketDoneCannotChangeStatusError):
+        with pytest.raises(TicketActionNotAllowedError):
             await service.update_status(
                 created.id,
                 TicketStatusUpdate(status=TicketStatus.NEW),
@@ -131,12 +129,33 @@ class TestTicketService:
         created = await service.create_ticket(TicketCreate(title="Test"))
         await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.IN_PROGRESS))
         await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.DONE))
-        with pytest.raises(TicketDoneCannotDeleteError):
+        with pytest.raises(TicketActionNotAllowedError):
             await service.delete_ticket(created.id)
 
     async def test_delete_nonexistent_ticket(self, service: TicketService):
         with pytest.raises(TicketNotFoundError):
             await service.delete_ticket(999)
+
+    async def test_update_ticket_action_not_allowed_has_correct_message(self, service: TicketService):
+        created = await service.create_ticket(TicketCreate(title="Test"))
+        await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.IN_PROGRESS))
+        await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.DONE))
+        with pytest.raises(TicketActionNotAllowedError, match="edit"):
+            await service.update_ticket(created.id, TicketUpdate(title="New"))
+
+    async def test_delete_ticket_action_not_allowed_has_correct_message(self, service: TicketService):
+        created = await service.create_ticket(TicketCreate(title="Test"))
+        await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.IN_PROGRESS))
+        await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.DONE))
+        with pytest.raises(TicketActionNotAllowedError, match="delete"):
+            await service.delete_ticket(created.id)
+
+    async def test_change_status_action_not_allowed_has_correct_message(self, service: TicketService):
+        created = await service.create_ticket(TicketCreate(title="Test"))
+        await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.IN_PROGRESS))
+        await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.DONE))
+        with pytest.raises(TicketActionNotAllowedError, match="transition"):
+            await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.NEW))
 
     async def test_list_tickets_pagination(self, service: TicketService):
         for i in range(25):

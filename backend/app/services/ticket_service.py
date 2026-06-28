@@ -1,13 +1,11 @@
 import logging
 from datetime import datetime, timezone
 
+from app.core.domain.action_matrix import can_perform, can_transition
 from app.core.domain.entities import Ticket
 from app.core.domain.enums import TicketStatus
 from app.core.domain.exceptions import (
-    TicketDoneCannotChangeStatusError,
-    TicketDoneCannotDeleteError,
-    TicketDoneCannotEditError,
-    TicketInvalidStatusTransitionError,
+    TicketActionNotAllowedError,
     TicketNotFoundError,
 )
 from app.core.domain.schemas import (
@@ -77,8 +75,8 @@ class TicketService:
         ticket = await self._repo.get_by_id(ticket_id)
         if not ticket:
             raise TicketNotFoundError(ticket_id)
-        if ticket.status == TicketStatus.DONE:
-            raise TicketDoneCannotEditError()
+        if not can_perform(ticket.status, "edit"):
+            raise TicketActionNotAllowedError("edit", ticket.status)
         update_data = data.model_dump(exclude_unset=True)
         if not update_data:
             return self._to_response(ticket)
@@ -97,15 +95,10 @@ class TicketService:
         ticket = await self._repo.get_by_id(ticket_id)
         if not ticket:
             raise TicketNotFoundError(ticket_id)
-        if ticket.status == TicketStatus.DONE:
-            raise TicketDoneCannotChangeStatusError()
-        valid_transitions = {
-            TicketStatus.NEW: {TicketStatus.IN_PROGRESS, TicketStatus.DONE},
-            TicketStatus.IN_PROGRESS: {TicketStatus.DONE, TicketStatus.NEW},
-        }
-        allowed = valid_transitions.get(ticket.status, set()) | {ticket.status}
-        if data.status not in allowed:
-            raise TicketInvalidStatusTransitionError(ticket.status, data.status)
+        if not can_perform(ticket.status, "transition"):
+            raise TicketActionNotAllowedError("transition", ticket.status)
+        if not can_transition(ticket.status, data.status):
+            raise TicketActionNotAllowedError(f"transition from '{ticket.status}' to '{data.status}'", ticket.status)
         logger.info(
             "Ticket status change: id=%d, %s -> %s",
             ticket_id,
@@ -121,7 +114,7 @@ class TicketService:
         ticket = await self._repo.get_by_id(ticket_id)
         if not ticket:
             raise TicketNotFoundError(ticket_id)
-        if ticket.status == TicketStatus.DONE:
-            raise TicketDoneCannotDeleteError()
+        if not can_perform(ticket.status, "delete"):
+            raise TicketActionNotAllowedError("delete", ticket.status)
         await self._repo.delete(ticket_id)
         logger.info("Ticket deleted: id=%d", ticket_id)
