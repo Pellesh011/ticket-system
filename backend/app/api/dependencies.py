@@ -7,16 +7,23 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.domain.exceptions import UnauthorizedError
 from app.infrastructure.database.session import get_session
+from app.infrastructure.repositories.sql_priority_repository import SQLPriorityRepository
 from app.infrastructure.repositories.sql_ticket_repository import SQLTicketRepository
 from app.infrastructure.repositories.sql_user_repository import SQLUserRepository
 from app.infrastructure.services.password_service import PasswordService
 from app.services.auth_service import AuthService
+from app.services.priority_service import PriorityService
 from app.services.ticket_service import TicketService
 
 
 async def get_ticket_service(session: Annotated[AsyncSession, Depends(get_session)]) -> AsyncGenerator[TicketService, None]:
     repository = SQLTicketRepository(session)
     yield TicketService(repository)
+
+
+async def get_priority_service(session: Annotated[AsyncSession, Depends(get_session)]) -> AsyncGenerator[PriorityService, None]:
+    repository = SQLPriorityRepository(session)
+    yield PriorityService(repository)
 
 
 async def get_auth_service(session: Annotated[AsyncSession, Depends(get_session)]) -> AsyncGenerator[AuthService, None]:

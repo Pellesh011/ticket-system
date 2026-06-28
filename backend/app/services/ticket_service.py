@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timezone
 
 from app.core.domain.entities import Ticket
-from app.core.domain.enums import TicketPriority, TicketStatus
+from app.core.domain.enums import TicketStatus
 from app.core.domain.exceptions import (
     TicketDoneCannotChangeStatusError,
     TicketDoneCannotDeleteError,
@@ -27,11 +27,20 @@ class TicketService:
 
     @staticmethod
     def _to_response(ticket: Ticket) -> TicketResponse:
-        return TicketResponse.model_validate(ticket)
+        return TicketResponse(
+            id=ticket.id,
+            title=ticket.title,
+            description=ticket.description,
+            status=ticket.status,
+            priority_id=ticket.priority_id,
+            priority_name=ticket.priority_name or "",
+            created_at=ticket.created_at,
+            updated_at=ticket.updated_at,
+        )
 
     async def create_ticket(self, data: TicketCreate) -> TicketResponse:
-        logger.info("Creating ticket: title=%s, priority=%s", data.title, data.priority)
-        ticket = Ticket(title=data.title, description=data.description, priority=data.priority)
+        logger.info("Creating ticket: title=%s, priority_id=%d", data.title, data.priority_id)
+        ticket = Ticket(title=data.title, description=data.description, priority_id=data.priority_id)
         created = await self._repo.create(ticket)
         logger.info("Ticket created: id=%d", created.id)
         return self._to_response(created)
@@ -45,7 +54,7 @@ class TicketService:
     async def get_tickets(
         self,
         status: TicketStatus | None = None,
-        priority: TicketPriority | None = None,
+        priority_id: int | None = None,
         search: str | None = None,
         sort_by: str = "created_at",
         sort_order: str = "desc",
@@ -55,7 +64,7 @@ class TicketService:
         skip = (page - 1) * page_size
         tickets, total = await self._repo.get_filtered(
             status=status,
-            priority=priority,
+            priority_id=priority_id,
             search=search,
             sort_by=sort_by,
             sort_order=sort_order,
@@ -77,8 +86,8 @@ class TicketService:
             ticket.title = update_data["title"]
         if "description" in update_data:
             ticket.description = update_data["description"]
-        if "priority" in update_data:
-            ticket.priority = update_data["priority"]
+        if "priority_id" in update_data:
+            ticket.priority_id = update_data["priority_id"]
         ticket.updated_at = datetime.now(timezone.utc)
         updated = await self._repo.update(ticket)
         logger.info("Ticket updated: id=%d, fields=%s", ticket_id, list(update_data.keys()))

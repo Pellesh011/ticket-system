@@ -20,12 +20,6 @@ const statusLabels: Record<TicketStatus, string> = {
   done: "Выполнено",
 };
 
-const priorityLabels: Record<string, string> = {
-  low: "Низкий",
-  normal: "Средний",
-  high: "Высокий",
-};
-
 const validTransitions: Record<TicketStatus, TicketStatus[]> = {
   new: ["new", "in_progress", "done"],
   in_progress: ["new", "in_progress", "done"],
@@ -76,8 +70,8 @@ const TicketRow = memo(function TicketRow({ ticket, isAdmin }: TicketRowProps) {
         </select>
       </td>
       <td>
-        <span className={`priority-badge priority-${ticket.priority}`}>
-          {priorityLabels[ticket.priority]}
+        <span className={`priority-badge priority-${ticket.priority_name}`}>
+          {ticket.priority_name}
         </span>
       </td>
       <td className="date-cell">

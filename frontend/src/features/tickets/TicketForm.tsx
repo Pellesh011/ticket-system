@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { createTicket, selectTicketsLoading } from "./ticketsSlice";
-import type { TicketPriority } from "../../api/types";
+import { createTicket, selectPriorities, selectTicketsLoading } from "./ticketsSlice";
 
 export function TicketForm() {
   const dispatch = useAppDispatch();
@@ -9,7 +8,9 @@ export function TicketForm() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<TicketPriority>("normal");
+  const priorities = useAppSelector(selectPriorities);
+
+  const [priority_id, setPriorityId] = useState<number>(2);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const validate = (): boolean => {
@@ -36,14 +37,14 @@ export function TicketForm() {
       createTicket({
         title: title.trim(),
         description: description.trim() || undefined,
-        priority,
+        priority_id,
       }),
     );
 
     if (createTicket.fulfilled.match(result)) {
       setTitle("");
       setDescription("");
-      setPriority("normal");
+      setPriorityId(2);
       setFieldErrors({});
     }
   };
@@ -71,13 +72,15 @@ export function TicketForm() {
           )}
         </div>
         <select
-          value={priority}
-          onChange={(e) => setPriority(e.target.value as TicketPriority)}
+          value={priority_id}
+          onChange={(e) => setPriorityId(Number(e.target.value))}
           disabled={loading}
         >
-          <option value="low">Низкий</option>
-          <option value="normal">Средний</option>
-          <option value="high">Высокий</option>
+          {priorities.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
         </select>
       </div>
       <div className="field">

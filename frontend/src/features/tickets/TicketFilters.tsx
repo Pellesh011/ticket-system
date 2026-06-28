@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { setFilters, selectFilters } from "./ticketsSlice";
-import type { TicketFilters as Filters, TicketPriority, TicketStatus } from "../../api/types";
+import { setFilters, selectFilters, selectPriorities } from "./ticketsSlice";
+import type { TicketFilters as Filters, TicketStatus } from "../../api/types";
 
 export function TicketFilters() {
   const dispatch = useAppDispatch();
   const filters = useAppSelector(selectFilters);
+  const priorities = useAppSelector(selectPriorities);
 
   const [search, setSearch] = useState(filters.search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -44,15 +45,17 @@ export function TicketFilters() {
         <option value="done">Выполнено</option>
       </select>
       <select
-        value={filters.priority}
+        value={filters.priority_id}
         onChange={(e) =>
-          dispatch(setFilters({ priority: e.target.value as TicketPriority | "" }))
+          dispatch(setFilters({ priority_id: e.target.value === "" ? "" : Number(e.target.value) }))
         }
       >
         <option value="">Все приоритеты</option>
-        <option value="low">Низкий</option>
-        <option value="normal">Средний</option>
-        <option value="high">Высокий</option>
+        {priorities.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.name}
+          </option>
+        ))}
       </select>
       <select
         value={`${filters.sort_by}-${filters.sort_order}`}

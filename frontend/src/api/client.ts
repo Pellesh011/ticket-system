@@ -1,6 +1,7 @@
 import type {
   LoginRequest,
   PaginatedResponse,
+  Priority,
   Ticket,
   TicketCreate,
   TicketFilters,
@@ -56,7 +57,7 @@ export const api = {
     list(filters: TicketFilters): Promise<PaginatedResponse> {
       const params = new URLSearchParams()
       if (filters.status) params.set("status", filters.status)
-      if (filters.priority) params.set("priority", filters.priority)
+      if (filters.priority_id) params.set("priority_id", String(filters.priority_id))
       if (filters.search) params.set("search", filters.search)
       params.set("sort_by", filters.sort_by)
       params.set("sort_order", filters.sort_order)
@@ -94,6 +95,12 @@ export const api = {
       return request(`/api/tickets/${id}`, {
         method: "DELETE",
       })
+    },
+  },
+
+  priorities: {
+    list(): Promise<Priority[]> {
+      return request("/api/priorities")
     },
   },
 
