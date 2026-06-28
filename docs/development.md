@@ -42,7 +42,7 @@ npm run dev
 ```bash
 cd backend
 
-# Все тесты (60: unit + integration)
+# Все тесты (63: unit + integration)
 pytest -v
 
 # Только unit-тесты (включая TZDateTime)
@@ -97,7 +97,7 @@ GitHub Actions автоматически запускается при push/PR 
 
 ### backend-test
 - Python 3.12
-- `pytest -v` (60 тестов)
+- `pytest -v` (63 теста)
 
 ### frontend-build
 - Node 22

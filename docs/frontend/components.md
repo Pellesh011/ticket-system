@@ -79,16 +79,22 @@
 |---------|-----------|
 | Название | `ticket.title` |
 | Описание | `ticket.description` (или "-") |
-| Статус | `<select>` с валидными переходами |
+| Статус | `<select>` со статусами из Action Matrix |
 | Приоритет | Бейдж с `ticket.priority_name` |
 | Создан | Дата в локальном формате |
 | Изменён | Дата в локальном формате |
-| Действия | Кнопка удаления (только для admin, кроме done) |
+| Действия | Кнопка удаления (только для admin, если разрешено матрицей) |
 
-**Валидные переходы статусов:**
-- `new` → `new`, `in_progress`, `done`
-- `in_progress` → `new`, `in_progress`, `done`
-- `done` → заблокирован
+**Action Matrix:** Правила действий и переходов вынесены в отдельный `actionMatrix.ts` и зеркалируют бэкенд:
+- `canPerform(status, action)` — разрешено ли действие (`edit`, `delete`, `transition`)
+- `getAllowedTransitions(status)` — список статусов для select
+
+**Правила:**
+| Статус | `edit` | `delete` | `transition` | Доступные переходы |
+|--------|--------|----------|-------------|-------------------|
+| `new` | ✅ | ✅ | ✅ | `new`, `in_progress`, `done` |
+| `in_progress` | ✅ | ✅ | ✅ | `new`, `in_progress`, `done` |
+| `done` | ❌ | ❌ | ❌ | `done` |
 
 **Оптимизация:** `React.memo` на строках таблицы (`TicketRow`).
 
