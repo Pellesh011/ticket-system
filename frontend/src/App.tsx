@@ -23,7 +23,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Ticket Management System</h1>
+        <h1>Система управления тикетами</h1>
         <LoginModal />
       </header>
 
@@ -39,7 +39,7 @@ function App() {
         )}
 
         {loading ? (
-          <div className="loading-state">Loading tickets...</div>
+          <div className="loading-state">Загрузка тикетов...</div>
         ) : (
           <TicketTable />
         )}

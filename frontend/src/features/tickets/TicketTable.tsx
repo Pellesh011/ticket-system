@@ -15,15 +15,15 @@ const statusColors: Record<TicketStatus, string> = {
 };
 
 const statusLabels: Record<TicketStatus, string> = {
-  new: "New",
-  in_progress: "In Progress",
-  done: "Done",
+  new: "Новый",
+  in_progress: "В работе",
+  done: "Выполнено",
 };
 
 const priorityLabels: Record<string, string> = {
-  low: "Low",
-  normal: "Normal",
-  high: "High",
+  low: "Низкий",
+  normal: "Средний",
+  high: "Высокий",
 };
 
 const validTransitions: Record<TicketStatus, TicketStatus[]> = {
@@ -50,7 +50,7 @@ const TicketRow = memo(function TicketRow({ ticket, isAdmin }: TicketRowProps) {
   };
 
   const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this ticket?")) {
+    if (confirm("Вы уверены, что хотите удалить этот тикет?")) {
       dispatch(deleteTicket(ticket.id));
     }
   };
@@ -85,7 +85,7 @@ const TicketRow = memo(function TicketRow({ ticket, isAdmin }: TicketRowProps) {
       </td>
       <td className="actions-cell">
         {isAdmin && !isDone && (
-          <button className="delete-btn" onClick={handleDelete} title="Delete">
+          <button className="delete-btn" onClick={handleDelete} title="Удалить">
             X
           </button>
         )}
@@ -99,7 +99,7 @@ export function TicketTable() {
   const isAdmin = useAppSelector(selectIsAdmin);
 
   if (tickets.length === 0) {
-    return <div className="empty-state">No tickets found</div>;
+    return <div className="empty-state">Тикеты не найдены</div>;
   }
 
   return (
@@ -107,12 +107,12 @@ export function TicketTable() {
       <table className="ticket-table">
         <thead>
           <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Created</th>
-            <th>Actions</th>
+            <th>Название</th>
+            <th>Описание</th>
+            <th>Статус</th>
+            <th>Приоритет</th>
+            <th>Создан</th>
+            <th>Действия</th>
           </tr>
         </thead>
         <tbody>

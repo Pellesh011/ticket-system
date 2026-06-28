@@ -150,9 +150,7 @@
 }
 
 .actions-cell {
-  display: flex;
-  gap: 6px;
-  align-items: center;
+  min-height: 32px;
 }
 
 /* Status select */

@@ -16,13 +16,13 @@ export function TicketForm() {
     const errors: Record<string, string> = {};
     const trimmedTitle = title.trim();
     if (trimmedTitle.length < 3) {
-      errors.title = "Title must be at least 3 characters";
+      errors.title = "Название должно содержать минимум 3 символа";
     }
     if (trimmedTitle.length > 120) {
-      errors.title = "Title must be at most 120 characters";
+      errors.title = "Название должно содержать максимум 120 символов";
     }
     if (description.trim().length > 1000) {
-      errors.description = "Description must be at most 1000 characters";
+      errors.description = "Описание должно содержать максимум 1000 символов";
     }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -50,12 +50,12 @@ export function TicketForm() {
 
   return (
     <form onSubmit={handleSubmit} className="ticket-form">
-      <h3>Create Ticket</h3>
+      <h3>Создать тикет</h3>
       <div className="form-row">
         <div className="field">
           <input
             type="text"
-            placeholder="Title (3-120 chars)"
+            placeholder="Название (3-120 символов)"
             value={title}
             onChange={(e) => {
               setTitle(e.target.value);
@@ -75,14 +75,14 @@ export function TicketForm() {
           onChange={(e) => setPriority(e.target.value as TicketPriority)}
           disabled={loading}
         >
-          <option value="low">Low</option>
-          <option value="normal">Normal</option>
-          <option value="high">High</option>
+          <option value="low">Низкий</option>
+          <option value="normal">Средний</option>
+          <option value="high">Высокий</option>
         </select>
       </div>
       <div className="field">
         <textarea
-          placeholder="Description (optional, max 1000 chars)"
+          placeholder="Описание (необязательно, макс. 1000 символов)"
           value={description}
           onChange={(e) => {
             setDescription(e.target.value);
@@ -98,7 +98,7 @@ export function TicketForm() {
         )}
       </div>
       <button type="submit" disabled={loading}>
-        {loading ? "Creating..." : "Create"}
+        {loading ? "Создание..." : "Создать"}
       </button>
     </form>
   );
