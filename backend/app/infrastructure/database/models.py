@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text
 
 from app.infrastructure.database.base import Base
+from app.infrastructure.database.types import TZDateTime
 from app.core.domain.enums import TicketPriority, TicketStatus
 
 
@@ -14,9 +15,9 @@ class TicketModel(Base):
     description = Column(Text(1000), nullable=True)
     status = Column(String(20), default=TicketStatus.NEW, nullable=False)
     priority = Column(Integer, default=TicketPriority.NORMAL, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(TZDateTime(), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(
-        DateTime,
+        TZDateTime(),
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
         nullable=False,
