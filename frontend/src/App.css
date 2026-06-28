@@ -155,25 +155,24 @@
   align-items: center;
 }
 
-.actions-cell select {
+/* Status select */
+.status-select {
   padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-size: 0.85rem;
-}
-
-/* Status badges */
-.status-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
   font-weight: 500;
+  cursor: pointer;
 }
 
-.status-new { background: #e3f2fd; color: #1565c0; }
-.status-progress { background: #fff3e0; color: #e65100; }
-.status-done { background: #e8f5e9; color: #2e7d32; }
+.status-select.status-new { background: #e3f2fd; color: #1565c0; }
+.status-select.status-progress { background: #fff3e0; color: #e65100; }
+.status-select.status-done { background: #e8f5e9; color: #2e7d32; }
+
+.status-select:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 
 .priority-badge {
   display: inline-block;
@@ -243,11 +242,6 @@
 
 .delete-btn:hover {
   background: var(--danger-hover);
-}
-
-.done-label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
 }
 
 /* Login */

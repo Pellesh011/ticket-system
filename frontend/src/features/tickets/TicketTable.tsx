@@ -14,10 +14,22 @@ const statusColors: Record<TicketStatus, string> = {
   done: "status-done",
 };
 
+const statusLabels: Record<TicketStatus, string> = {
+  new: "New",
+  in_progress: "In Progress",
+  done: "Done",
+};
+
 const priorityLabels: Record<string, string> = {
   low: "Low",
   normal: "Normal",
   high: "High",
+};
+
+const validTransitions: Record<TicketStatus, TicketStatus[]> = {
+  new: ["new", "in_progress"],
+  in_progress: ["new", "in_progress", "done"],
+  done: ["done"],
 };
 
 interface TicketRowProps {
@@ -28,8 +40,13 @@ interface TicketRowProps {
 const TicketRow = memo(function TicketRow({ ticket, isAdmin }: TicketRowProps) {
   const dispatch = useAppDispatch();
 
-  const handleStatusChange = (status: TicketStatus) => {
-    dispatch(updateTicketStatus({ id: ticket.id, data: { status } }));
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    dispatch(
+      updateTicketStatus({
+        id: ticket.id,
+        data: { status: e.target.value as TicketStatus },
+      }),
+    );
   };
 
   const handleDelete = () => {
@@ -38,14 +55,25 @@ const TicketRow = memo(function TicketRow({ ticket, isAdmin }: TicketRowProps) {
     }
   };
 
+  const isDone = ticket.status === "done";
+
   return (
     <tr>
       <td>{ticket.title}</td>
       <td className="desc-cell">{ticket.description || "-"}</td>
       <td>
-        <span className={`status-badge ${statusColors[ticket.status]}`}>
-          {ticket.status.replace("_", " ")}
-        </span>
+        <select
+          className={`status-select ${statusColors[ticket.status]}`}
+          value={ticket.status}
+          onChange={handleStatusChange}
+          disabled={isDone}
+        >
+          {validTransitions[ticket.status].map((s) => (
+            <option key={s} value={s}>
+              {statusLabels[s]}
+            </option>
+          ))}
+        </select>
       </td>
       <td>
         <span className={`priority-badge priority-${ticket.priority}`}>
@@ -56,19 +84,7 @@ const TicketRow = memo(function TicketRow({ ticket, isAdmin }: TicketRowProps) {
         {new Date(ticket.created_at).toLocaleDateString()}
       </td>
       <td className="actions-cell">
-        {ticket.status !== "done" ? (
-          <select
-            value={ticket.status}
-            onChange={(e) => handleStatusChange(e.target.value as TicketStatus)}
-          >
-            <option value="new">New</option>
-            <option value="in_progress">In Progress</option>
-            <option value="done">Done</option>
-          </select>
-        ) : (
-          <span className="done-label">Done</span>
-        )}
-        {isAdmin && ticket.status !== "done" && (
+        {isAdmin && !isDone && (
           <button className="delete-btn" onClick={handleDelete} title="Delete">
             X
           </button>
