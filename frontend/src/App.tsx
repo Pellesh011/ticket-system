@@ -18,6 +18,9 @@ function App() {
 
   useEffect(() => {
     dispatch(fetchPriorities());
+  }, [dispatch]);
+
+  useEffect(() => {
     dispatch(fetchTickets(filters));
   }, [dispatch, filters]);
 
