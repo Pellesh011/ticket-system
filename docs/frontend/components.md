@@ -85,7 +85,7 @@
 | Действия | Кнопка удаления (только для admin, кроме done) |
 
 **Валидные переходы статусов:**
-- `new` → `new`, `in_progress`
+- `new` → `new`, `in_progress`, `done`
 - `in_progress` → `new`, `in_progress`, `done`
 - `done` → заблокирован
 

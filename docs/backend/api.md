@@ -212,7 +212,7 @@ PATCH /api/tickets/{id}/status
 **Валидные переходы:**
 | Текущий статус | Доступные переходы |
 |----------------|-------------------|
-| `new` | `new`, `in_progress` |
+| `new` | `new`, `in_progress`, `done` |
 | `in_progress` | `new`, `in_progress`, `done` |
 | `done` | — (блокируется) |
 

@@ -126,6 +126,13 @@ class TestTicketAPI:
         assert response.status_code == 200
         assert response.json()["status"] == "done"
 
+    async def test_update_status_new_to_done(self, async_client: AsyncClient):
+        resp = await async_client.post("/api/tickets", json={"title": "Direct done"})
+        ticket_id = resp.json()["id"]
+        response = await async_client.patch(f"/api/tickets/{ticket_id}/status", json={"status": "done"})
+        assert response.status_code == 200
+        assert response.json()["status"] == "done"
+
     async def test_cannot_change_status_from_done(self, async_client: AsyncClient):
         resp = await async_client.post("/api/tickets", json={"title": "Done ticket"})
         ticket_id = resp.json()["id"]

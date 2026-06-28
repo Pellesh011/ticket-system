@@ -103,6 +103,14 @@ class TestTicketService:
         )
         assert result.status == TicketStatus.IN_PROGRESS
 
+    async def test_change_status_new_to_done(self, service: TicketService):
+        created = await service.create_ticket(TicketCreate(title="Test"))
+        result = await service.update_status(
+            created.id,
+            TicketStatusUpdate(status=TicketStatus.DONE),
+        )
+        assert result.status == TicketStatus.DONE
+
     async def test_cannot_change_status_from_done(self, service: TicketService):
         created = await service.create_ticket(TicketCreate(title="Test"))
         await service.update_status(created.id, TicketStatusUpdate(status=TicketStatus.IN_PROGRESS))
