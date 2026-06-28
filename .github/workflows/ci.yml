@@ -11,6 +11,8 @@ concurrency:
 
 jobs:
   backend-test:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
@@ -30,6 +32,8 @@ jobs:
       - run: pytest -v
 
   frontend-build:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
