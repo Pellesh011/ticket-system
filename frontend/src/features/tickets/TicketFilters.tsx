@@ -69,6 +69,18 @@ export function TicketFilters() {
         <option value="priority-desc">Высокий приоритет</option>
         <option value="priority-asc">Низкий приоритет</option>
       </select>
+      <select
+        value={filters.page_size}
+        onChange={(e) =>
+          dispatch(setFilters({ page_size: Number(e.target.value), page: 1 }))
+        }
+      >
+        <option value={5}>5 записей</option>
+        <option value={10}>10 записей</option>
+        <option value={20}>20 записей</option>
+        <option value={50}>50 записей</option>
+        <option value={100}>100 записей</option>
+      </select>
     </div>
   );
 }
