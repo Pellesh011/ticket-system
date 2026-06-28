@@ -91,7 +91,7 @@ class TicketService:
         if ticket.status == TicketStatus.DONE:
             raise TicketDoneCannotChangeStatusError()
         valid_transitions = {
-            TicketStatus.NEW: {TicketStatus.IN_PROGRESS},
+            TicketStatus.NEW: {TicketStatus.IN_PROGRESS, TicketStatus.DONE},
             TicketStatus.IN_PROGRESS: {TicketStatus.DONE, TicketStatus.NEW},
         }
         allowed = valid_transitions.get(ticket.status, set()) | {ticket.status}

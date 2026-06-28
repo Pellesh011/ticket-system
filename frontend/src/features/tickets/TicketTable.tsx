@@ -27,7 +27,7 @@ const priorityLabels: Record<string, string> = {
 };
 
 const validTransitions: Record<TicketStatus, TicketStatus[]> = {
-  new: ["new", "in_progress"],
+  new: ["new", "in_progress", "done"],
   in_progress: ["new", "in_progress", "done"],
   done: ["done"],
 };
