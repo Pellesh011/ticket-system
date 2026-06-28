@@ -1,0 +1,32 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.20
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^backend/
+      - id: ruff-format
+        files: ^backend/
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: bash -c 'cd backend && python -m pytest'
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: oxlint
+        name: oxlint
+        entry: bash -c 'cd frontend && npm run lint'
+        language: system
+        types: [javascript, jsx, ts, tsx]
+        pass_filenames: false
+
+      - id: tsc-build
+        name: tsc build
+        entry: bash -c 'cd frontend && npx tsc -b'
+        language: system
+        types: [javascript, jsx, ts, tsx]
+        pass_filenames: false
