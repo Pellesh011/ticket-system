@@ -87,7 +87,7 @@ POST /api/tickets
 {
   "title": "Название тикета",
   "description": "Описание (необязательно)",
-  "priority": "normal"
+  "priority_id": 2
 }
 ```
 
@@ -96,7 +96,7 @@ POST /api/tickets
 |------|-----|-------------|----------|
 | `title` | string | да | 3–120 символов |
 | `description` | string | нет | До 1000 символов |
-| `priority` | string | нет | `low`, `normal` (по умолчанию), `high` |
+| `priority_id` | int | нет | ID приоритета (по умолчанию 2 = normal) |
 
 **Ответ (201):**
 ```json
@@ -105,7 +105,8 @@ POST /api/tickets
   "title": "Название тикета",
   "description": "Описание",
   "status": "new",
-  "priority": "normal",
+  "priority_id": 2,
+  "priority_name": "normal",
   "created_at": "2026-06-28T12:00:00Z",
   "updated_at": "2026-06-28T12:00:00Z"
 }
@@ -123,7 +124,7 @@ GET /api/tickets
 | Параметр | Тип | По умолчанию | Описание |
 |----------|-----|--------------|----------|
 | `status` | string | — | Фильтр по статусу: `new`, `in_progress`, `done` |
-| `priority` | string | — | Фильтр по приоритету: `low`, `normal`, `high` |
+| `priority_id` | int | — | Фильтр по ID приоритета (1=low, 2=normal, 3=high) |
 | `search` | string | — | Поиск по названию и описанию |
 | `sort_by` | string | `created_at` | Сортировка: `created_at`, `priority` |
 | `sort_order` | string | `desc` | Направление: `asc`, `desc` |
@@ -132,7 +133,7 @@ GET /api/tickets
 
 **Пример:**
 ```
-GET /api/tickets?status=new&priority=high&sort_by=created_at&sort_order=desc&page=1&page_size=10
+GET /api/tickets?status=new&priority_id=3&sort_by=created_at&sort_order=desc&page=1&page_size=10
 ```
 
 **Ответ (200):**
@@ -144,7 +145,8 @@ GET /api/tickets?status=new&priority=high&sort_by=created_at&sort_order=desc&pag
       "title": "Тикет",
       "description": null,
       "status": "new",
-      "priority": "high",
+      "priority_id": 3,
+      "priority_name": "high",
       "created_at": "2026-06-28T12:00:00Z",
       "updated_at": "2026-06-28T12:00:00Z"
     }
@@ -182,7 +184,7 @@ PATCH /api/tickets/{id}
 {
   "title": "Новое название",
   "description": "Новое описание",
-  "priority": "high"
+  "priority_id": 3
 }
 ```
 
@@ -242,6 +244,94 @@ Authorization: Bearer <token>
 - `400` — Невозможно delete тикет в статусе 'выполнено'
 - `403` — Требуется доступ администратора
 - `404` — Тикет с id {id} не найден
+
+---
+
+### Приоритеты
+
+#### Список приоритетов
+
+```
+GET /api/priorities
+```
+
+**Ответ (200):**
+```json
+[
+  { "id": 1, "name": "low", "sort_order": 0 },
+  { "id": 2, "name": "normal", "sort_order": 1 },
+  { "id": 3, "name": "high", "sort_order": 2 }
+]
+```
+
+#### Создание приоритета
+
+```
+POST /api/priorities
+```
+
+**Заголовки (требуется admin):**
+```
+Authorization: Bearer <token>
+```
+
+**Тело запроса:**
+```json
+{
+  "name": "critical",
+  "sort_order": 3
+}
+```
+
+**Ответ (201):**
+```json
+{
+  "id": 4,
+  "name": "critical",
+  "sort_order": 3
+}
+```
+
+#### Обновление приоритета
+
+```
+PATCH /api/priorities/{id}
+```
+
+**Заголовки (требуется admin):**
+```
+Authorization: Bearer <token>
+```
+
+**Тело запроса:**
+```json
+{
+  "name": "urgent",
+  "sort_order": 3
+}
+```
+
+**Ответ (200):** Обновлённый приоритет
+
+**Ошибки:**
+- `404` — Приоритет с id {id} не найден
+
+#### Удаление приоритета
+
+```
+DELETE /api/priorities/{id}
+```
+
+**Заголовки (требуется admin):**
+```
+Authorization: Bearer <token>
+```
+
+**Ответ (204):** Нет тела
+
+**Ошибки:**
+- `404` — Приоритет с id {id} не найден
+- `400` — Приоритет используется тикетами (FK constraint)
 
 ---
 
