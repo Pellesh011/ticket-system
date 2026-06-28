@@ -1,27 +1,27 @@
-import { useEffect, useRef, useState } from "react"
-import type { TicketFilters as Filters, TicketPriority, TicketStatus } from "../api/types"
+import { useEffect, useRef, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { setFilters, selectFilters } from "./ticketsSlice";
+import type { TicketFilters as Filters, TicketPriority, TicketStatus } from "../../api/types";
 
-interface TicketFiltersProps {
-  filters: Filters
-  onFilterChange: (partial: Partial<Filters>) => void
-}
+export function TicketFilters() {
+  const dispatch = useAppDispatch();
+  const filters = useAppSelector(selectFilters);
 
-export function TicketFilters({ filters, onFilterChange }: TicketFiltersProps) {
-  const [search, setSearch] = useState(filters.search)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const [search, setSearch] = useState(filters.search);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
-    return () => clearTimeout(debounceRef.current)
-  }, [])
+    return () => clearTimeout(debounceRef.current);
+  }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setSearch(value)
-    clearTimeout(debounceRef.current)
+    const value = e.target.value;
+    setSearch(value);
+    clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      onFilterChange({ search: value })
-    }, 300)
-  }
+      dispatch(setFilters({ search: value }));
+    }, 300);
+  };
 
   return (
     <div className="ticket-filters">
@@ -34,7 +34,9 @@ export function TicketFilters({ filters, onFilterChange }: TicketFiltersProps) {
       />
       <select
         value={filters.status}
-        onChange={(e) => onFilterChange({ status: e.target.value as TicketStatus | "" })}
+        onChange={(e) =>
+          dispatch(setFilters({ status: e.target.value as TicketStatus | "" }))
+        }
       >
         <option value="">All Status</option>
         <option value="new">New</option>
@@ -43,7 +45,9 @@ export function TicketFilters({ filters, onFilterChange }: TicketFiltersProps) {
       </select>
       <select
         value={filters.priority}
-        onChange={(e) => onFilterChange({ priority: e.target.value as TicketPriority | "" })}
+        onChange={(e) =>
+          dispatch(setFilters({ priority: e.target.value as TicketPriority | "" }))
+        }
       >
         <option value="">All Priority</option>
         <option value="low">Low</option>
@@ -53,8 +57,11 @@ export function TicketFilters({ filters, onFilterChange }: TicketFiltersProps) {
       <select
         value={`${filters.sort_by}-${filters.sort_order}`}
         onChange={(e) => {
-          const [sort_by, sort_order] = e.target.value.split("-") as [Filters["sort_by"], Filters["sort_order"]]
-          onFilterChange({ sort_by, sort_order })
+          const [sort_by, sort_order] = e.target.value.split("-") as [
+            Filters["sort_by"],
+            Filters["sort_order"],
+          ];
+          dispatch(setFilters({ sort_by, sort_order }));
         }}
       >
         <option value="created_at-desc">Newest First</option>
@@ -63,5 +70,5 @@ export function TicketFilters({ filters, onFilterChange }: TicketFiltersProps) {
         <option value="priority-asc">Priority Low</option>
       </select>
     </div>
-  )
+  );
 }

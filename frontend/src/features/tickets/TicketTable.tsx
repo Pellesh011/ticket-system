@@ -1,33 +1,43 @@
-import { memo } from "react"
-import type { Ticket, TicketStatus, TicketStatusUpdate } from "../api/types"
-
-interface TicketTableProps {
-  tickets: Ticket[]
-  isAdmin: boolean
-  onStatusChange: (id: number, data: TicketStatusUpdate) => void
-  onDelete: (id: number) => void
-}
+import { memo } from "react";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { selectIsAdmin } from "../auth/authSlice";
+import {
+  updateTicketStatus,
+  deleteTicket,
+  selectTickets,
+} from "./ticketsSlice";
+import type { Ticket, TicketStatus } from "../../api/types";
 
 const statusColors: Record<TicketStatus, string> = {
   new: "status-new",
   in_progress: "status-progress",
   done: "status-done",
-}
+};
 
 const priorityLabels: Record<string, string> = {
   low: "Low",
   normal: "Normal",
   high: "High",
-}
+};
 
 interface TicketRowProps {
-  ticket: Ticket
-  isAdmin: boolean
-  onStatusChange: (id: number, data: TicketStatusUpdate) => void
-  onDelete: (id: number) => void
+  ticket: Ticket;
+  isAdmin: boolean;
 }
 
-const TicketRow = memo(function TicketRow({ ticket, isAdmin, onStatusChange, onDelete }: TicketRowProps) {
+const TicketRow = memo(function TicketRow({ ticket, isAdmin }: TicketRowProps) {
+  const dispatch = useAppDispatch();
+
+  const handleStatusChange = (status: TicketStatus) => {
+    dispatch(updateTicketStatus({ id: ticket.id, data: { status } }));
+  };
+
+  const handleDelete = () => {
+    if (confirm("Are you sure you want to delete this ticket?")) {
+      dispatch(deleteTicket(ticket.id));
+    }
+  };
+
   return (
     <tr>
       <td>{ticket.title}</td>
@@ -42,14 +52,14 @@ const TicketRow = memo(function TicketRow({ ticket, isAdmin, onStatusChange, onD
           {priorityLabels[ticket.priority]}
         </span>
       </td>
-      <td className="date-cell">{new Date(ticket.created_at).toLocaleDateString()}</td>
+      <td className="date-cell">
+        {new Date(ticket.created_at).toLocaleDateString()}
+      </td>
       <td className="actions-cell">
         {ticket.status !== "done" ? (
           <select
             value={ticket.status}
-            onChange={(e) =>
-              onStatusChange(ticket.id, { status: e.target.value as TicketStatus })
-            }
+            onChange={(e) => handleStatusChange(e.target.value as TicketStatus)}
           >
             <option value="new">New</option>
             <option value="in_progress">In Progress</option>
@@ -59,18 +69,21 @@ const TicketRow = memo(function TicketRow({ ticket, isAdmin, onStatusChange, onD
           <span className="done-label">Done</span>
         )}
         {isAdmin && ticket.status !== "done" && (
-          <button className="delete-btn" onClick={() => onDelete(ticket.id)} title="Delete">
+          <button className="delete-btn" onClick={handleDelete} title="Delete">
             X
           </button>
         )}
       </td>
     </tr>
-  )
-})
+  );
+});
 
-export function TicketTable({ tickets, isAdmin, onStatusChange, onDelete }: TicketTableProps) {
+export function TicketTable() {
+  const tickets = useAppSelector(selectTickets);
+  const isAdmin = useAppSelector(selectIsAdmin);
+
   if (tickets.length === 0) {
-    return <div className="empty-state">No tickets found</div>
+    return <div className="empty-state">No tickets found</div>;
   }
 
   return (
@@ -88,16 +101,10 @@ export function TicketTable({ tickets, isAdmin, onStatusChange, onDelete }: Tick
         </thead>
         <tbody>
           {tickets.map((ticket) => (
-            <TicketRow
-              key={ticket.id}
-              ticket={ticket}
-              isAdmin={isAdmin}
-              onStatusChange={onStatusChange}
-              onDelete={onDelete}
-            />
+            <TicketRow key={ticket.id} ticket={ticket} isAdmin={isAdmin} />
           ))}
         </tbody>
       </table>
     </div>
-  )
+  );
 }

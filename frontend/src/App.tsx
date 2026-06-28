@@ -1,87 +1,53 @@
-import { useCallback, useState } from "react"
-import "./App.css"
-import type { TicketStatusUpdate } from "./api/types"
-import { ErrorMessage } from "./components/ErrorMessage"
-import { LoginModal } from "./components/LoginModal"
-import { Pagination } from "./components/Pagination"
-import { TicketFilters } from "./components/TicketFilters"
-import { TicketForm } from "./components/TicketForm"
-import { TicketTable } from "./components/TicketTable"
-import { useTickets } from "./hooks/useTickets"
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "./app/hooks";
+import { fetchTickets, selectTicketsLoading, selectTicketsError, clearError } from "./features/tickets/ticketsSlice";
+import { selectFilters } from "./features/tickets/ticketsSlice";
+import { LoginModal } from "./features/auth/LoginModal";
+import { TicketForm } from "./features/tickets/TicketForm";
+import { TicketFilters } from "./features/tickets/TicketFilters";
+import { TicketTable } from "./features/tickets/TicketTable";
+import { Pagination } from "./features/tickets/Pagination";
+import { ErrorMessage } from "./components/ErrorMessage";
+import "./App.css";
 
 function App() {
-  const {
-    tickets,
-    pagination,
-    loading,
-    error,
-    filters,
-    updateFilters,
-    createTicket,
-    updateStatus,
-    deleteTicket,
-    setPage,
-  } = useTickets()
+  const dispatch = useAppDispatch();
+  const loading = useAppSelector(selectTicketsLoading);
+  const error = useAppSelector(selectTicketsError);
+  const filters = useAppSelector(selectFilters);
 
-  const [isAdmin, setIsAdmin] = useState(!!sessionStorage.getItem("admin_token"))
-  const [dismissedError, setDismissedError] = useState<string | null>(null)
-
-  const handleLogin = useCallback(() => {
-    setIsAdmin(!!sessionStorage.getItem("admin_token"))
-  }, [])
-
-  const handleStatusChange = useCallback(
-    async (id: number, data: TicketStatusUpdate) => {
-      await updateStatus(id, data)
-    },
-    [updateStatus],
-  )
-
-  const handleDelete = useCallback(
-    async (id: number) => {
-      if (confirm("Are you sure you want to delete this ticket?")) {
-        await deleteTicket(id)
-      }
-    },
-    [deleteTicket],
-  )
+  useEffect(() => {
+    dispatch(fetchTickets(filters));
+  }, [dispatch, filters]);
 
   return (
     <div className="app">
       <header className="app-header">
         <h1>Ticket Management System</h1>
-        <LoginModal onLogin={handleLogin} />
+        <LoginModal />
       </header>
 
       <main className="app-main">
-        <TicketForm onSubmit={createTicket} />
+        <TicketForm />
+        <TicketFilters />
 
-        <TicketFilters filters={filters} onFilterChange={updateFilters} />
-
-        {error && error !== dismissedError && (
-          <ErrorMessage message={error} onDismiss={() => setDismissedError(error)} />
+        {error && (
+          <ErrorMessage
+            message={error}
+            onDismiss={() => dispatch(clearError())}
+          />
         )}
 
         {loading ? (
           <div className="loading-state">Loading tickets...</div>
         ) : (
-          <TicketTable
-            tickets={tickets}
-            isAdmin={isAdmin}
-            onStatusChange={handleStatusChange}
-            onDelete={handleDelete}
-          />
+          <TicketTable />
         )}
 
-        <Pagination
-          page={pagination.page}
-          totalPages={pagination.total_pages}
-          total={pagination.total}
-          onPageChange={setPage}
-        />
+        <Pagination />
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
